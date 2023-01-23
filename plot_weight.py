@@ -25,6 +25,12 @@ weight_dat["Date"] = pd.to_datetime(weight_dat["Date"])
 # reverse ordering so chronological
 weight_dat.sort_values(by=["Date"],inplace=True)
 
+# delete rows before 25/05/16 as likely erroneous
+weight_dat = weight_dat[~(weight_dat['Date'] < '2016-05-25')]
+
+tmp = weight_dat
 # remove duplicates (as some erroneous readings at the very start)
 # weight_dat['isDup'] = weight_dat.duplicated(subset=['Weight'], keep='last')
 test = weight_dat['Weight'].loc[weight_dat['Weight'].shift() != weight_dat['Weight']]
+
+tmp['isDup'] = tmp['Weight'].shift() == tmp['Weight']
