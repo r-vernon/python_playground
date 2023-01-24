@@ -7,6 +7,7 @@ Created on Mon Jan 23 16:18:13 2023
 """
 
 # import necessary stuff
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -36,8 +37,21 @@ weight_dat = weight_dat[~(weight_dat['Date'] < '2016-05-25')]
 # helps duplicate check later
 weight_dat['Date'] = weight_dat['Date'].dt.normalize()
 
-# remove duplicates
-weight_dat.drop_duplicates(inplace=True)
+# remove duplicates (same day, same weight) - below does equivelant
+# weight_dat.drop_duplicates(inplace=True)
+
+# for any duplicates (same day, multiple weights) average
+# also sets date as index
+weight_dat = weight_dat.groupby('Date').mean()
+
+#%% smooth the weight data
+
+test = weight_dat.copy()
+test = test.asfreq(freq='D')
+
+
+# dates = pd.Index(weight_dat['Date'])
+# test = pd.Series(weight_dat['Weight'],dates)
 
 #%% set some key dates to flag
 
@@ -64,10 +78,10 @@ apneaDate = (datetime(2020,10,19))
 fig, ax = plt.subplots()
 
 # plot the dots
-#plt.plot(weight_dat['Date'],weight_dat['Weight'],'o',markersize=2, color='black')
+plt.plot(weight_dat['Date'],weight_dat['Weight'],'o',markersize=2, color='black')
 
 # plot the line on top
-plt.plot(weight_dat['Date'],weight_dat['Weight'],'-')
+#plt.plot(weight_dat['Date'],weight_dat['Weight'],'-')
 
 # set axis lables
 plt.xlabel('Date')
