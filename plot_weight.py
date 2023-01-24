@@ -46,12 +46,18 @@ weight_dat = weight_dat.groupby('Date').mean()
 
 #%% smooth the weight data
 
-test = weight_dat.copy()
-test = test.asfreq(freq='D')
+# upsample so every day is represented
+weight_dat = weight_dat.asfreq(freq='D')
 
+# # just demonstrate vast majority of cases it's one missing day at most
+# # interpolation should be fine!
+# nullIdx = np.arange(0,len(weight_dat))
+# nullIdx = np.diff(nullIdx[weight_dat['Weight'].isnull()])
+# plt.hist(nullIdx,bins=np.arange(1,10))
 
-# dates = pd.Index(weight_dat['Date'])
-# test = pd.Series(weight_dat['Weight'],dates)
+# interpolate missing days (sci-pi cubic spline interpolation)
+weight_dat['iWeight'] = weight_dat.interpolate(method='spline', order=3)
+
 
 #%% set some key dates to flag
 
@@ -68,7 +74,7 @@ sertDate = (datetime(2020,2,14),datetime(2021,2,20))
 fluoxDate = (datetime(2021,9,20),datetime(2022,3,18))
 
 # time on concerta
-concDate = (datetime(2022,9,28),weight_dat['Date'].iloc[-1])
+concDate = (datetime(2022,9,28),weight_dat.index.max())
 
 # sleep apnea diagnosed
 apneaDate = (datetime(2020,10,19))
@@ -77,11 +83,11 @@ apneaDate = (datetime(2020,10,19))
 
 fig, ax = plt.subplots()
 
-# plot the dots
-plt.plot(weight_dat['Date'],weight_dat['Weight'],'o',markersize=2, color='black')
+# plot the dots using actual data 
+plt.plot(weight_dat.index,weight_dat['Weight'],'o',markersize=2, color='black')
 
 # plot the line on top
-#plt.plot(weight_dat['Date'],weight_dat['Weight'],'-')
+plt.plot(weight_dat.index,weight_dat['iWeight'],'-', alpha=0.8)
 
 # set axis lables
 plt.xlabel('Date')
