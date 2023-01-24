@@ -35,5 +35,5 @@ weight_dat['Date'] = weight_dat['Date'].dt.normalize()
 # remove duplicates
 weight_dat.drop_duplicates(inplace=True)
 
-#%%
+#%% plot the data
 
