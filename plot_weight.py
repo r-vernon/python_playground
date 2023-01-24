@@ -58,6 +58,9 @@ weight_dat = weight_dat.asfreq(freq='D')
 # interpolate missing days (sci-pi cubic spline interpolation)
 weight_dat['iWeight'] = weight_dat.interpolate(method='spline', order=3)
 
+# smooth the data
+weight_dat['sWeight'] = weight_dat['iWeight'].rolling(window=5, min_periods=1, \
+                                     win_type='gaussian',center=True).mean(std=0.5)
 
 #%% set some key dates to flag
 
