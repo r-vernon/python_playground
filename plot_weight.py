@@ -83,8 +83,8 @@ ax.fill_betweenx((70,150), sertDate[0],  sertDate[1],  alpha=0.2, color='tomato'
 ax.fill_betweenx((70,150), fluoxDate[0], fluoxDate[1], alpha=0.2, color='gold')
 ax.fill_betweenx((70,150), concDate[0],  concDate[1],  alpha=0.2, color='cadetblue')
 
-# add a dashed line for sleep apnea treatment
-plt.plot((apneaDate,apneaDate),(70,150),'k--')
+# # add a dashed line for sleep apnea treatment
+# plt.plot((apneaDate,apneaDate),(70,150),'k--')
 
 # show the glory
 plt.show()
