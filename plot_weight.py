@@ -60,7 +60,7 @@ weight_dat['iWeight'] = weight_dat.interpolate(method='spline', order=3)
 
 # smooth the data
 weight_dat['sWeight'] = weight_dat['iWeight'].rolling(window=5, min_periods=1, \
-                                     win_type='gaussian',center=True).mean(std=0.5)
+                                     win_type='gaussian',center=True).mean(std=5)
 
 #%% set some key dates to flag
 
@@ -90,7 +90,7 @@ fig, ax = plt.subplots()
 plt.plot(weight_dat.index,weight_dat['Weight'],'o',markersize=2, color='black')
 
 # plot the line on top
-plt.plot(weight_dat.index,weight_dat['iWeight'],'-', alpha=0.8)
+plt.plot(weight_dat.index,weight_dat['sWeight'],'-', alpha=0.8)
 
 # set axis lables
 plt.xlabel('Date')
