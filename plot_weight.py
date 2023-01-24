@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jan 23 16:18:13 2023
@@ -28,9 +28,12 @@ weight_dat.sort_values(by=["Date"],inplace=True)
 # delete rows before 25/05/16 as likely erroneous
 weight_dat = weight_dat[~(weight_dat['Date'] < '2016-05-25')]
 
-tmp = weight_dat
-# remove duplicates (as some erroneous readings at the very start)
-# weight_dat['isDup'] = weight_dat.duplicated(subset=['Weight'], keep='last')
-test = weight_dat['Weight'].loc[weight_dat['Weight'].shift() != weight_dat['Weight']]
+# normalise the dates (remove times) as we don't care what time we weighed ourself
+# helps duplicate check later
+weight_dat['Date'] = weight_dat['Date'].dt.normalize()
 
-tmp['isDup'] = tmp['Weight'].shift() == tmp['Weight']
+# remove duplicates
+weight_dat.drop_duplicates(inplace=True)
+
+#%%
+
