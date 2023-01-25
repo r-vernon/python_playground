@@ -104,28 +104,34 @@ plt.plot(weight_dat.index,weight_dat['Weight'],'o',markersize=1, color='black')
 # plot the line on top
 plt.plot(weight_dat.index,weight_dat['sWeight'],'-', alpha=0.8)
 
+# add secondary y-axis for bmi
+secax = ax.secondary_yaxis('right', functions=(kg2bmi, bmi2kg))
+
 # set axis lables
 plt.xlabel('Date')
 plt.ylabel('Weight (Kgs)')
+secax.set_ylabel('BMI')
 
 # set y axis limits
-plt.ylim(70,150)
+yL = 66
+yU = 151
+plt.ylim(yL,yU)
 
 # fill areas of interest
-ax.fill_betweenx((70,150), elvDate[0],   elvDate[1],   alpha=0.2, color='steelblue')
-ax.fill_betweenx((70,150), sertDate[0],  sertDate[1],  alpha=0.2, color='tomato')
-# ax.fill_betweenx((70,150), trazDate[0],  trazDate[1],  alpha=0.2, color='orange')
-ax.fill_betweenx((70,150), fluoxDate[0], fluoxDate[1], alpha=0.2, color='gold')
-ax.fill_betweenx((70,150), concDate[0],  concDate[1],  alpha=0.2, color='cadetblue')
+ax.fill_betweenx((yL,yU), elvDate[0],   elvDate[1],   alpha=0.2, color='steelblue')
+ax.fill_betweenx((yL,yU), sertDate[0],  sertDate[1],  alpha=0.2, color='tomato')
+# ax.fill_betweenx((yL,yU), trazDate[0],  trazDate[1],  alpha=0.2, color='orange')
+ax.fill_betweenx((yL,yU), fluoxDate[0], fluoxDate[1], alpha=0.2, color='gold')
+ax.fill_betweenx((yL,yU), concDate[0],  concDate[1],  alpha=0.2, color='cadetblue')
 
 # # add a dashed line for sleep apnea treatment
-# plt.plot((apneaDate,apneaDate),(70,150),'k--')
+# plt.plot((apneaDate,apneaDate),(yL,yU),'k--')
 
 # add text labels
-ax.text(elvDate[0]+((elvDate[1]-elvDate[0])/2),72,'Elvanse',ha='center',size='small')
-ax.text(sertDate[0]+((sertDate[1]-sertDate[0])/2),72,'Zoloft',ha='center',size='small')
-ax.text(fluoxDate[0]+((fluoxDate[1]-fluoxDate[0])/2),72,'Prozac',ha='center',size='small')
-ax.text(concDate[0]+((concDate[1]-concDate[0])/2),72,'Concerta',ha='center',size='small')
+ax.text(elvDate[0]+((elvDate[1]-elvDate[0])/2),yL+2,'Elvanse',ha='center',size='small')
+ax.text(sertDate[0]+((sertDate[1]-sertDate[0])/2),yL+2,'Zoloft',ha='center',size='small')
+ax.text(fluoxDate[0]+((fluoxDate[1]-fluoxDate[0])/2),yL+2,'Prozac',ha='center',size='small')
+ax.text(concDate[0]+((concDate[1]-concDate[0])/2),yL+2,'Concerta',ha='center',size='small')
 
 # save the figure
 plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150, pad_inches=0)
@@ -133,7 +139,7 @@ plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150
 # show the glory
 plt.show()
 
-# #%% plot a subset
+#%% plot a subset
 
 # elvDat = weight_dat[elvDate[0]:elvDate[1]]
 
