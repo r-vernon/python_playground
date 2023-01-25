@@ -56,10 +56,11 @@ weight_dat = weight_dat.asfreq(freq='D')
 # plt.hist(nullIdx,bins=np.arange(1,10))
 
 # interpolate missing days (sci-pi cubic spline interpolation)
-weight_dat['iWeight'] = weight_dat.interpolate(method='spline', order=3)
+# weight_dat['iWeight'] = weight_dat.interpolate(method='spline', order=3)
+weight_dat['iWeight'] = weight_dat.interpolate(method='time')
 
 # set window size and calculate SD (based on FWHM) 
-winSz = 7
+winSz = 14
 winSD = winSz/(2*np.sqrt(2*np.log(2)))
 
 # smooth the data
@@ -94,7 +95,7 @@ fig, ax = plt.subplots()
 plt.plot(weight_dat.index,weight_dat['Weight'],'o',markersize=1, color='black')
 
 # plot the line on top
-plt.plot(weight_dat.index,weight_dat['iWeight'],'-', alpha=0.8)
+plt.plot(weight_dat.index,weight_dat['sWeight'],'-', alpha=0.8)
 
 # set axis lables
 plt.xlabel('Date')
