@@ -4,6 +4,13 @@
 Created on Mon Jan 23 16:18:13 2023
 
 @author: richard
+
+yep I know this is public - but I think it's interesting so don't care :p
+decided to plot my weight coinciding with various medications:
+    2x antidepressants (Zoloft + Prozac)
+    2x ADHD meds (Elvanse + Concerta)
+I do have ADHD, and did have an eating disorder which ADHD meds *mostly* address
+
 """
 
 # import necessary stuff
