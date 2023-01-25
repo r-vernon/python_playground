@@ -170,21 +170,23 @@ ax.fill_betweenx((yL,yU), concDate[0],  concDate[1],  alpha=0.2, color='cadetblu
 # plt.plot((apneaDate,apneaDate),(yL,yU),'k--')
 
 # add text labels
-ax.text(elvDate[0]+((elvDate[1]-elvDate[0])/2),yL+2,'Elvanse',ha='center',size='small')
-ax.text(sertDate[0]+((sertDate[1]-sertDate[0])/2),yL+2,'Zoloft',ha='center',size='small')
-ax.text(fluoxDate[0]+((fluoxDate[1]-fluoxDate[0])/2),yL+2,'Prozac',ha='center',size='small')
-ax.text(concDate[0]+((concDate[1]-concDate[0])/2),yL+2,'Concerta',ha='center',size='small')
+ax.text(weight_dat.index[0]+((elvDate[0]-d1-weight_dat.index[0])/2),yL+2,'\'Normal\'\n(%.1fKg/yr)' % (nGain),ha='center',size='x-small')
+ax.text(elvDate[0]+((elvDate[1]-elvDate[0])/2),yL+2,'Elvanse\n(%.1fKg/yr)' % (eGain),ha='center',size='x-small')
+ax.text(sertDate[0]+((sertDate[1]-sertDate[0])/2),yL+2,'Zoloft\n(%.1fKg/yr*)' % (sGain),ha='center',size='x-small')
+ax.text(fluoxDate[0]+((fluoxDate[1]-fluoxDate[0])/2),yL+2,'Prozac\n(%.1fKg/yr*)' % (fGain),ha='center',size='x-small')
+ax.text(concDate[0]+((concDate[1]-concDate[0])/2),yL+2,'Concerta\n(%.1fKg/yr)' % (cGain),ha='center',size='x-small')
+plt.gcf().text(0.95, 0.02, '*assuming 3wk lag', ha='right',size='x-small')
 
 # add max weight
 maxW = weight_dat['Weight'].agg(['idxmax','max'])
 ax.text(maxW[0],maxW[1]+2,'Max %.1fKg' % (maxW[1]),ha='center',size='x-small')
 
 # add start and current weight
-ax.text(weight_dat.index[0],weight_dat.iat[0,0]-6,'   %.1fKg' % (weight_dat.iat[0,0]),ha='center',size='x-small')
+ax.text(weight_dat.index[0],weight_dat.iat[0,0]-5,'   %.1fKg' % (weight_dat.iat[0,0]),ha='center',size='x-small')
 ax.text(weight_dat.index[-1],weight_dat.iat[-1,0]-4,'%.1fKg   ' % (weight_dat.iat[-1,0]),ha='center',size='x-small')
 
 # save the figure
-plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150, pad_inches=0)
+# plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150, pad_inches=0)
 
 # show the glory
 plt.show()
