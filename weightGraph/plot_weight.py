@@ -23,7 +23,7 @@ from datetime import datetime
 plt.rcParams["figure.dpi"] = 300
 
 # create functions to calculate bmi from weight (in kgs) and vice versa
-# hardcoded to my height of 1.8288m
+# hardcoded to my height of 1.8288m (6ft)
 def kg2bmi(x):
     return x/(1.8288**2)
 def bmi2kg(x):
@@ -51,9 +51,6 @@ weight_dat = weight_dat[~(weight_dat['Date'] < '2016-05-25')]
 # helps duplicate check later
 weight_dat['Date'] = weight_dat['Date'].dt.normalize()
 
-# remove duplicates (same day, same weight) - below does equivelant
-# weight_dat.drop_duplicates(inplace=True)
-
 # for any duplicates (same day, multiple weights) average
 # also sets date as index
 weight_dat = weight_dat.groupby('Date').mean()
@@ -69,11 +66,10 @@ weight_dat = weight_dat.asfreq(freq='D')
 # nullIdx = np.diff(nullIdx[weight_dat['Weight'].isnull()])
 # plt.hist(nullIdx,bins=np.arange(1,10))
 
-# interpolate missing days (sci-pi cubic spline interpolation)
-# weight_dat['iWeight'] = weight_dat.interpolate(method='spline', order=3)
+# interpolate missing days
 weight_dat['iWeight'] = weight_dat.interpolate(method='time')
 
-# set window size and calculate SD (based on FWHM) 
+# set window size for gaussian window and calculate SD (based on FWHM) 
 winSz = 30
 winSD = winSz/(2*np.sqrt(2*np.log(2)))
 
@@ -149,7 +145,7 @@ ax.text(weight_dat.index[0],weight_dat.iat[0,0]-6,'   %.1fKg' % (weight_dat.iat[
 ax.text(weight_dat.index[-1],weight_dat.iat[-1,0]-4,'%.1fKg   ' % (weight_dat.iat[-1,0]),ha='center',size='x-small')
 
 # save the figure
-# plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150, pad_inches=0)
+plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150, pad_inches=0)
 
 # show the glory
 plt.show()
