@@ -17,7 +17,8 @@ I do have ADHD, and did have an eating disorder which ADHD meds *mostly* address
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime
+import matplotlib.dates as md
+from datetime import datetime, timedelta
 
 # set dpi for figures
 plt.rcParams["figure.dpi"] = 300
@@ -96,6 +97,44 @@ concDate = (datetime(2022,9,28),weight_dat.index.max())
 
 # sleep apnea diagnosed
 apneaDate = (datetime(2020,10,19))
+
+#%% calculate rates of change
+#
+# for ADHD meds, assuming instant impact
+# for antidepressants, assuming 3wk lag (onset+offset)
+#
+# note: date2num is days since epoch, so gradient of polyfit will be expected
+#       change per day
+
+# set 1day and 21 day time deltas
+d1 = timedelta(days=1)
+d21 = timedelta(days=21)
+
+# create function to calculate gain per year from data
+def calc_gain(y):
+    x = md.date2num(y.index)
+    z = np.polyfit(x,y.values,1)
+    return z[0]*365.25
+
+# normal weight gain (before elvanse)
+y = weight_dat.loc[:elvDate[0]-d1, 'Weight'].dropna()
+nGain = calc_gain(y)
+
+# elvanse weight gain
+y = weight_dat.loc[elvDate[0]:elvDate[1], 'Weight'].dropna()
+eGain = calc_gain(y)
+
+# sertraline weight gain
+y = weight_dat.loc[sertDate[0]+d21:sertDate[1]+d21, 'Weight'].dropna()
+sGain = calc_gain(y)
+
+# fluoxetine weight gain
+y = weight_dat.loc[fluoxDate[0]+d21:fluoxDate[1]+d21, 'Weight'].dropna()
+fGain = calc_gain(y)
+
+# concerta weight gain
+y = weight_dat.loc[concDate[0]:concDate[1], 'Weight'].dropna()
+cGain = calc_gain(y)
 
 #%% plot the data
 
