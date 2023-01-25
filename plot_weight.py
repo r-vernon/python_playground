@@ -58,9 +58,13 @@ weight_dat = weight_dat.asfreq(freq='D')
 # interpolate missing days (sci-pi cubic spline interpolation)
 weight_dat['iWeight'] = weight_dat.interpolate(method='spline', order=3)
 
+# set window size and calculate SD (based on FWHM) 
+winSz = 7
+winSD = winSz/(2*np.sqrt(2*np.log(2)))
+
 # smooth the data
-weight_dat['sWeight'] = weight_dat['iWeight'].rolling(window=5, min_periods=1, \
-                                     win_type='gaussian',center=True).mean(std=5)
+weight_dat['sWeight'] = weight_dat['iWeight'].rolling(window=winSz, min_periods=1, \
+                                     win_type='gaussian',center=True).mean(std=winSD)
 
 #%% set some key dates to flag
 
@@ -87,7 +91,7 @@ apneaDate = (datetime(2020,10,19))
 fig, ax = plt.subplots()
 
 # plot the dots using actual data 
-plt.plot(weight_dat.index,weight_dat['Weight'],'o',markersize=2, color='black')
+plt.plot(weight_dat.index,weight_dat['Weight'],'o',markersize=1, color='black')
 
 # plot the line on top
 plt.plot(weight_dat.index,weight_dat['sWeight'],'-', alpha=0.8)
