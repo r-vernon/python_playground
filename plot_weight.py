@@ -113,5 +113,11 @@ ax.fill_betweenx((70,150), concDate[0],  concDate[1],  alpha=0.2, color='cadetbl
 # # add a dashed line for sleep apnea treatment
 # plt.plot((apneaDate,apneaDate),(70,150),'k--')
 
+# add text labels
+ax.text(elvDate[0]+((elvDate[1]-elvDate[0])/2),72,'Elvanse',ha='center',size='small')
+ax.text(sertDate[0]+((sertDate[1]-sertDate[0])/2),72,'Zoloft',ha='center',size='small')
+ax.text(fluoxDate[0]+((fluoxDate[1]-fluoxDate[0])/2),72,'Prozac',ha='center',size='small')
+ax.text(concDate[0]+((concDate[1]-concDate[0])/2),72,'Concerta',ha='center',size='small')
+
 # show the glory
 plt.show()
