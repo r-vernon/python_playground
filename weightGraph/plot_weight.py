@@ -15,6 +15,13 @@ from datetime import datetime
 # set dpi for figures
 plt.rcParams["figure.dpi"] = 300
 
+# create functions to calculate bmi from weight (in kgs) and vice versa
+# hardcoded to my height of 1.8288m
+def kg2bmi(x):
+    return x/(1.8288**2)
+def bmi2kg(x):
+    return x*(1.8288**2)
+
 #%% import file
 
 # import the file
@@ -66,7 +73,6 @@ winSD = winSz/(2*np.sqrt(2*np.log(2)))
 # smooth the data
 weight_dat['sWeight'] = weight_dat['iWeight'].rolling(window=winSz, min_periods=1, \
                                      win_type='gaussian',center=True).mean(std=winSD)
-
 
 #%% set some key dates to flag
 
@@ -127,24 +133,24 @@ plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150
 # show the glory
 plt.show()
 
-#%% plot a subset
+# #%% plot a subset
 
-elvDat = weight_dat[elvDate[0]:elvDate[1]]
+# elvDat = weight_dat[elvDate[0]:elvDate[1]]
 
-fig, ax = plt.subplots()
+# fig, ax = plt.subplots()
 
-# plot the dots using actual data 
-plt.plot(elvDat.index,elvDat['Weight'],'o',markersize=1, color='black')
+# # plot the dots using actual data 
+# plt.plot(elvDat.index,elvDat['Weight'],'o',markersize=1, color='black')
 
-# plot the line on top
-plt.plot(elvDat.index,elvDat['sWeight'],'-', alpha=0.8)
+# # plot the line on top
+# plt.plot(elvDat.index,elvDat['sWeight'],'-', alpha=0.8)
 
-# set axis lables
-plt.xlabel('Date')
-plt.ylabel('Weight (Kgs)')
+# # set axis lables
+# plt.xlabel('Date')
+# plt.ylabel('Weight (Kgs)')
 
-# set y axis limits
-plt.ylim(80,110)
+# # set y axis limits
+# plt.ylim(80,110)
 
-# show the glory
-plt.show()
+# # show the glory
+# plt.show()
