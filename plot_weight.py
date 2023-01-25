@@ -60,12 +60,13 @@ weight_dat = weight_dat.asfreq(freq='D')
 weight_dat['iWeight'] = weight_dat.interpolate(method='time')
 
 # set window size and calculate SD (based on FWHM) 
-winSz = 14
+winSz = 30
 winSD = winSz/(2*np.sqrt(2*np.log(2)))
 
 # smooth the data
 weight_dat['sWeight'] = weight_dat['iWeight'].rolling(window=winSz, min_periods=1, \
                                      win_type='gaussian',center=True).mean(std=winSD)
+
 
 #%% set some key dates to flag
 
@@ -119,6 +120,9 @@ ax.text(elvDate[0]+((elvDate[1]-elvDate[0])/2),72,'Elvanse',ha='center',size='sm
 ax.text(sertDate[0]+((sertDate[1]-sertDate[0])/2),72,'Zoloft',ha='center',size='small')
 ax.text(fluoxDate[0]+((fluoxDate[1]-fluoxDate[0])/2),72,'Prozac',ha='center',size='small')
 ax.text(concDate[0]+((concDate[1]-concDate[0])/2),72,'Concerta',ha='center',size='small')
+
+# save the figure
+plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150, pad_inches=0)
 
 # show the glory
 plt.show()
