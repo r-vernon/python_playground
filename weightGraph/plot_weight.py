@@ -109,10 +109,10 @@ secax = ax.secondary_yaxis('right', functions=(kg2bmi, bmi2kg))
 
 # set axis lables
 plt.xlabel('Date')
-plt.ylabel('Weight (Kgs)')
+plt.ylabel('Weight (Kg)')
 secax.set_ylabel('BMI')
 
-# set y axis limits
+# set main y axis limits
 yL = 66
 yU = 151
 plt.ylim(yL,yU)
@@ -133,8 +133,16 @@ ax.text(sertDate[0]+((sertDate[1]-sertDate[0])/2),yL+2,'Zoloft',ha='center',size
 ax.text(fluoxDate[0]+((fluoxDate[1]-fluoxDate[0])/2),yL+2,'Prozac',ha='center',size='small')
 ax.text(concDate[0]+((concDate[1]-concDate[0])/2),yL+2,'Concerta',ha='center',size='small')
 
+# add max weight
+maxW = weight_dat['Weight'].agg(['idxmax','max'])
+ax.text(maxW[0],maxW[1]+2,'Max %.1fKg' % (maxW[1]),ha='center',size='x-small')
+
+# add start and current weight
+ax.text(weight_dat.index[0],weight_dat.iat[0,0]-6,'   %.1fKg' % (weight_dat.iat[0,0]),ha='center',size='x-small')
+ax.text(weight_dat.index[-1],weight_dat.iat[-1,0]-4,'%.1fKg   ' % (weight_dat.iat[-1,0]),ha='center',size='x-small')
+
 # save the figure
-plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150, pad_inches=0)
+# plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150, pad_inches=0)
 
 # show the glory
 plt.show()
