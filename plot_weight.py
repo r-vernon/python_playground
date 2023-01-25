@@ -94,7 +94,7 @@ fig, ax = plt.subplots()
 plt.plot(weight_dat.index,weight_dat['Weight'],'o',markersize=1, color='black')
 
 # plot the line on top
-plt.plot(weight_dat.index,weight_dat['sWeight'],'-', alpha=0.8)
+plt.plot(weight_dat.index,weight_dat['iWeight'],'-', alpha=0.8)
 
 # set axis lables
 plt.xlabel('Date')
@@ -118,6 +118,28 @@ ax.text(elvDate[0]+((elvDate[1]-elvDate[0])/2),72,'Elvanse',ha='center',size='sm
 ax.text(sertDate[0]+((sertDate[1]-sertDate[0])/2),72,'Zoloft',ha='center',size='small')
 ax.text(fluoxDate[0]+((fluoxDate[1]-fluoxDate[0])/2),72,'Prozac',ha='center',size='small')
 ax.text(concDate[0]+((concDate[1]-concDate[0])/2),72,'Concerta',ha='center',size='small')
+
+# show the glory
+plt.show()
+
+#%% plot a subset
+
+elvDat = weight_dat[elvDate[0]:elvDate[1]]
+
+fig, ax = plt.subplots()
+
+# plot the dots using actual data 
+plt.plot(elvDat.index,elvDat['Weight'],'o',markersize=1, color='black')
+
+# plot the line on top
+plt.plot(elvDat.index,elvDat['sWeight'],'-', alpha=0.8)
+
+# set axis lables
+plt.xlabel('Date')
+plt.ylabel('Weight (Kgs)')
+
+# set y axis limits
+plt.ylim(80,110)
 
 # show the glory
 plt.show()
