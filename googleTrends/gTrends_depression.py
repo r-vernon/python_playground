@@ -8,9 +8,11 @@ Created on Mon Jan 30 15:11:15 2023
 
 # import necessary stuff
 import os
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import signal
+from scipy.fftpack import fft
 
 # set dpi for figures
 plt.rcParams["figure.dpi"] = 300
@@ -38,6 +40,30 @@ for currYear in range(2006,2023):
 
 # concatenate
 df = pd.concat(all_dat, axis=0, ignore_index=True)
+
+# check no missing dates (there aren't!)
+# dateDiff = df['Date'].diff()
+# dateDiff.plot()
+
+#%% perform an fft
+
+N = len(df)
+fft_pad = 7*np.ceil((N*1.1)/7) - N
+N = N + fft_pad
+
+sr = (df['Date'][1]-df['Date'][0]).days
+T = N/sr
+freq = np.arange(N)/T
+
+dep_fft = fft(df['Freq'].values,n=980)
+
+#%%
+
+plt.stem(freq, np.abs(dep_fft), 'b', markerfmt=" ", basefmt="-b")
+plt.xlabel('Freq')
+plt.ylabel('FFT Amplitude |X(freq)|')
+plt.xlim(0, 2)
+plt.show()
 
 #%%
 
