@@ -63,7 +63,7 @@ df = pd.concat(all_dat, axis=0, ignore_index=True)
 
 #%% create detrended version of the data
 # we have 16yrs of data, so will filter out up to 3 cycles (every 5yrs ish)
-#   as looking for cyclical shifts
+#   as looking for cyclical shifts in a year, not longer trends
 
 # number of data points
 N = len(df)
@@ -97,6 +97,30 @@ ax1.set_title('Original data')
 ax2.plot(df['Date'],df['Freq_dt'],c='b',lw=0.5)
 ax2.set_title('Detrended data')
 plt.show()
+
+#%% initial exploration - compare by month
+
+# group by month (ignoring day, year)
+df_byMth = df['Freq_dt'].groupby(by=df.Date.dt.month)
+
+# create list of month names (alt: calander module, or pandas dt.strftime)
+mthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+# plot the result as a bar chart
+f, ax = plt.subplots()
+ax.bar(np.arange(12), df_byMth.mean(), yerr=df_byMth.std(), 
+       align='center', color='dimgray', edgecolor='black', 
+       ecolor='black', capsize=0, tick_label=mthNames)
+ax.set_title('Depression Searches by Month')
+ax.set_ylabel('Search Frequency (Arb. Units)')
+ax.axhline(y=0.0, color='black', linestyle='-', linewidth=1)
+f.text(0.88, 0.15, 'Errorbars +/- 1SD', ha='right',size='x-small')
+plt.show()
+
+# NOTES:
+#   Seems to show a trend rising in winter months, falling in summer
+#   No rise for christmas though, potentially
+#   If we do fft, expect mag. peak around 16 cycles, aka yearly
 
 #%% perform an fft
 
