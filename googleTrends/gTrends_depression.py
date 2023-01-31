@@ -21,19 +21,35 @@ plt.rcParams["figure.dpi"] = 300
 os.chdir('/home/richard/Documents/Python/googleTrends/')
 
 #%% read in the data
+# original data ('data') downloaded yearly
+# new data ('data2') downloaded relative to 2014, which had highest peak
+# - that ensures that all trend data has the same scale
 
 all_dat = []
 
 for currYear in range(2006,2023):
     
     # read in current year
-    # skip 2 rows, treat next (row 0) as header, rename cols, parse 1st col as date
-    df = pd.read_csv('./data/Depression_%d.csv' % (currYear),skiprows=2,\
-                     header=0,names=['Date','Freq'],parse_dates=[0])
+    if currYear == 2014:
+        # read in current year, skip 2 rows, 
+        # **use colums 0+1**, treat row0 as header, rename cols, 
+        # parse col1 as date
+        df = (pd.read_csv('./data2/Depression_%d.csv' % (currYear),skiprows=2,
+                          usecols=[0,1],header=0,names=['Date','Freq'],
+                          parse_dates=[0]))
+    else:
+        # read in current year, skip 2 rows, 
+        # **use colums 2+3**, treat row0 as header, rename cols, 
+        # parse col1 as date
+        df = (pd.read_csv('./data2/Depression_%d.csv' % (currYear),skiprows=2,
+                          usecols=[2,3],header=0,names=['Date','Freq'],
+                          parse_dates=[0]))
     
+    # no longer need to standardize - although probably didn't need to detrend
+    #  in first place!
     # detrend and standardize (z-score; demeaning again to be safe!)
-    df['Freq'] = signal.detrend(df['Freq'].values,type='linear')
-    df['Freq']=(df['Freq']-df['Freq'].mean())/df['Freq'].std()
+    #df['Freq'] = signal.detrend(df['Freq'].values,type='linear')
+    #df['Freq']=(df['Freq']-df['Freq'].mean())/df['Freq'].std()
     
     # add to list of all data
     all_dat.append(df)
