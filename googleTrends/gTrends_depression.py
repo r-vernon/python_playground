@@ -61,27 +61,63 @@ df = pd.concat(all_dat, axis=0, ignore_index=True)
 # dateDiff = df['Date'].diff()
 # dateDiff.plot()
 
+#%% create detrended version of the data
+# we have 16yrs of data, so will filter out up to 3 cycles (every 5yrs ish)
+#   as looking for cyclical shifts
+
+# number of data points
+N = len(df)
+
+# time series (for sin/cos regressors)
+t = np.linspace(0,2*np.pi,N+1)[0:-1]
+
+# preallocate array (betas)
+B = np.zeros((N,8))
+
+# create a matrix, we'll use constant, lin. trend and 1-3 cycles (sin+cos)
+B[:,0] = 1                  # constant
+B[:,1] = np.linspace(0,1,N) # linear trend
+B[:,2] = np.sin(t)          # single cycle
+B[:,3] = np.cos(t)          # "
+B[:,4] = np.sin(2*t)        # double cycle
+B[:,5] = np.cos(2*t)        # "
+B[:,6] = np.sin(3*t)        # triple cycle
+B[:,7] = np.cos(3*t)        # "
+
+# perform the regression
+modelFit = np.linalg.lstsq(B,df['Freq'],rcond=None)
+
+# calculate residuals (Freq detrend)
+df['Freq_dt'] = df['Freq'] - (B @ modelFit[0])
+
+# plot the comparison
+f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+ax1.plot(df['Date'],df['Freq'],c='b',lw=0.5)
+ax1.set_title('Original data')
+ax2.plot(df['Date'],df['Freq_dt'],c='b',lw=0.5)
+ax2.set_title('Detrended data')
+plt.show()
+
 #%% perform an fft
 
-N = len(df)
-fft_pad = 7*np.ceil((N*1.1)/7) - N
-N = N + fft_pad
+#fft_pad = 7*np.ceil((N*1.1)/7) - N
+#N = N + fft_pad
 
 sr = (df['Date'][1]-df['Date'][0]).days
 T = N/sr
 freq = np.arange(N)/T
 
-dep_fft = fft(df['Freq'].values,n=980)
+dep_fft = fft(df['Freq'].values,N)
 
 #%%
 
-plt.stem(freq, np.abs(dep_fft), 'b', markerfmt=" ", basefmt="-b")
+plt.stem(np.arange(N-1), np.abs(dep_fft[1:]), 'b', markerfmt=" ", basefmt="-b")
 plt.xlabel('Freq')
 plt.ylabel('FFT Amplitude |X(freq)|')
-plt.xlim(0, 2)
+plt.xlim(1, 20)
 plt.show()
 
 #%%
 
-plt.plot(df['Date'],df['Freq'],c='b',lw=0.5)
+plt.plot(df['Date'],df['Freq_dt'],c='b',lw=0.5)
 plt.show()
