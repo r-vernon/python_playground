@@ -11,8 +11,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy import signal
-from scipy.fftpack import fft
+from scipy.signal import get_window
 
 # set dpi for figures
 plt.rcParams["figure.dpi"] = 300
@@ -69,7 +68,7 @@ df = pd.concat(all_dat, axis=0, ignore_index=True)
 N = len(df)
 
 # time series (for sin/cos regressors)
-t = np.linspace(0,2*np.pi,N+1)[0:-1]
+t = np.linspace(0.0,2*np.pi,N+1)[0:-1]
 
 # preallocate array (betas)
 B = np.zeros((N,8))
@@ -119,29 +118,31 @@ plt.show()
 
 # NOTES:
 #   Seems to show a trend rising in winter months, falling in summer
-#   No rise for christmas though, potentially
+#   No rise for christmas though!
 #   If we do fft, expect mag. peak around 16 cycles, aka yearly
 
 #%% perform an fft
 
-#fft_pad = 7*np.ceil((N*1.1)/7) - N
-#N = N + fft_pad
+# calculate number of years data we have
+nYrs = ((df['Date'].iloc[-1] - df['Date'].iloc[0]).days)/365.25
 
-sr = (df['Date'][1]-df['Date'][0]).days
-T = N/sr
-freq = np.arange(N)/T
+# perform fft
+#   applying hann window to reduce frequency leakage
+#   upsampling (zero padding) to 4096 points to increase frequency resolution
+n = 4096
+w = np.fft.rfft(df['Freq_dt']*get_window('hann',N),n=n)
 
-dep_fft = fft(df['Freq'].values,N)
+# calculate power
+w_pow = np.abs(w[:n//2 + 1])
 
-#%%
+# get frequency range (in cycles per year)
+d = nYrs/N
+freqs = np.fft.rfftfreq(n,d)
 
-plt.stem(np.arange(N-1), np.abs(dep_fft[1:]), 'b', markerfmt=" ", basefmt="-b")
-plt.xlabel('Freq')
-plt.ylabel('FFT Amplitude |X(freq)|')
-plt.xlim(1, 20)
-plt.show()
-
-#%%
-
-plt.plot(df['Date'],df['Freq_dt'],c='b',lw=0.5)
+# plot
+f, ax = plt.subplots()
+ax.plot(freqs,w_pow)
+ax.set_xlim(0,12)
+ax.set_xlabel('Cycles per year')
+ax.set_ylabel('Power')
 plt.show()
