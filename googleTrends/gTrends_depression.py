@@ -148,8 +148,8 @@ nYrs = ((df['Date'].iloc[-1] - df['Date'].iloc[0]).days)/365.25
 
 # perform fft
 #   applying hann window to reduce frequency leakage
-#   upsampling (zero padding) to 4096 points to increase frequency resolution
-n = 4096
+#   upsampling (zero padding) to 2N points to increase frequency resolution
+n = 2*N
 w = np.fft.rfft(df['Freq_dt']*signal.get_window('hann',N),n=n)
 
 # calculate amplitude and phase (as cosine phase, radians)
@@ -169,15 +169,76 @@ mDist = np.round(1.0/(2.0*freqs[1])) # freqs starts at 0, so freqs[1] gives incr
 mProm = w_amp.max()/3.0
 peaks, pProp = signal.find_peaks(w_amp, height=mHeight, prominence=mProm,distance=mDist)
 
-# plot
+# plot the fourier spectrum
 f, ax = plt.subplots()
 ax.plot(freqs,w_amp,c='k',lw=0.75)
-plt.plot(freqs[peaks], w_amp[peaks],'.',c='r')
-for cPk in peaks:
-    ax.text(freqs[cPk]+0.3,w_amp[cPk],'%.1f' % (freqs[cPk]),va='center',size='x-small')
 ax.set_xlim(0,16)
-ax.set_ylim(0,0.6)
+ax.set_ylim(0,1.4)
 ax.set_title('Fourier Spectrum of Depression Search Trends')
 ax.set_xlabel('Cycles per year')
 ax.set_ylabel('Amplitude')
+
+# plot the peaks
+h1, = ax.plot(freqs[peaks], w_amp[peaks], '.', c='r')
+for cPk in peaks:
+    ax.text(freqs[cPk]+0.3,w_amp[cPk],'%.1f' % (freqs[cPk]),va='center',size='x-small')
+
+# create empty handle for legend (so can format it as desired)
+h2, = ax.plot0,0,visible=False)
+
+# add a text box (legend) explaining peaks
+tStr = ['Peaks identified using:',
+    '\n'.join((
+    '- height > %.2f' % (mHeight),
+    '- distance between peaks > %.2f cycles/yr' % (freqs[round(mDist)]),
+    '- height above neighbours (prominance) > %.2f' % (mProm)))]
+ax.legend(handles=[h1,h2], labels=[tStr[0],tStr[1]], loc='upper right', 
+          fontsize='x-small', facecolor='whitesmoke', labelspacing=0.1, 
+          fancybox=False, edgecolor='black', handletextpad=0.0,
+          borderpad=0.5, borderaxespad=1)
+
+# show the thing
 plt.show()
+
+# found 3 peaks
+#   first (1 cycle/yr) likely the dominant peak of interest
+#   second (2 cycles/yr) likely just a harmonic
+#   third (7 cycles/yr), no idea, interesting!
+
+#%% explore the peaks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
