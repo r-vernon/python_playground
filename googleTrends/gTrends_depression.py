@@ -153,7 +153,7 @@ n = 2*N
 w = np.fft.rfft(df['Freq_dt']*signal.get_window('hann',N),n=n)
 
 # calculate amplitude and phase (as cosine phase, radians)
-w_amp = 2.0/n * np.abs(w[:n//2 + 1])
+w_amp = 2.0/N * np.abs(w[:n//2 + 1])
 w_ph  = np.angle(w[:n//2 + 1])
 
 # get frequency range (in cycles per year)
@@ -173,7 +173,7 @@ peaks, pProp = signal.find_peaks(w_amp, height=mHeight, prominence=mProm,distanc
 f, ax = plt.subplots()
 ax.plot(freqs,w_amp,c='k',lw=0.75)
 ax.set_xlim(0,16)
-ax.set_ylim(0,1.4)
+# ax.set_ylim(0,1.4)
 ax.set_title('Fourier Spectrum of Depression Search Trends')
 ax.set_xlabel('Cycles per year')
 ax.set_ylabel('Amplitude')
@@ -184,7 +184,7 @@ for cPk in peaks:
     ax.text(freqs[cPk]+0.3,w_amp[cPk],'%.1f' % (freqs[cPk]),va='center',size='x-small')
 
 # create empty handle for legend (so can format it as desired)
-h2, = ax.plot0,0,visible=False)
+h2, = ax.plot(0,0,visible=False)
 
 # add a text box (legend) explaining peaks
 tStr = ['Peaks identified using:',
@@ -205,14 +205,28 @@ plt.show()
 #   second (2 cycles/yr) likely just a harmonic
 #   third (7 cycles/yr), no idea, interesting!
 
-#%% explore the peaks
+#%% explore the peaks (1+all)
 
+# t = np.linspace(0.0,2*np.pi,n+1)[0:N]
+p1 = w_amp[peaks[0]]*np.cos(peaks[0]*t + w_ph[peaks[0]])
+p2 = w_amp[peaks[1]]*np.cos(peaks[1]*t + w_ph[peaks[1]])
+p3 = w_amp[peaks[2]]*np.cos(peaks[2]*t + w_ph[peaks[2]])
+p4 = p1 + p2 + p3
 
+# plot the comparison
+f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+ax1.plot(df['Date'],df['Freq_dt'],c='k',lw=0.75, alpha=0.75, clip_on=False)
+ax1.plot(df['Date'],p1,c='r',lw=0.75)
+ax1.set_ylim(-20,20)
+ax1.set_yticks(np.arange(-20,30,10))
 
+ax2.plot(df['Date'],df['Freq_dt'],c='k',lw=0.75, alpha=0.75, clip_on=False)
+ax2.plot(df['Date'],p4,c='r',lw=0.75)
+ax2.set_ylim(-20,20)
+ax2.set_yticks(np.arange(-20,30,10))
 
-
-
-
+plt.tight_layout()
+plt.show()
 
 
 
