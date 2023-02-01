@@ -11,7 +11,8 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.signal import get_window, find_peaks
+from matplotlib.dates import DateFormatter
+from scipy import signal
 
 # set dpi for figures
 plt.rcParams["figure.dpi"] = 300
@@ -89,12 +90,31 @@ modelFit = np.linalg.lstsq(B,df['Freq'],rcond=None)
 # calculate residuals (Freq detrend)
 df['Freq_dt'] = df['Freq'] - (B @ modelFit[0])
 
+# create a smoothed version to remove outliers (median filter)
+df['Freq_sm'] = signal.medfilt(df['Freq_dt'],5)
+
 # plot the comparison
-f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
-ax1.plot(df['Date'],df['Freq'],c='b',lw=0.5)
+ax1 = plt.subplot(211)
+ax1.plot(df['Date'],df['Freq'],c='k',lw=0.75)
 ax1.set_title('Original data')
-ax2.plot(df['Date'],df['Freq_dt'],c='b',lw=0.5)
+ax1.set_ylim(20,120)
+ax1.set_yticks(np.arange(20,140,20))
+
+ax2 = plt.subplot(223)
+ax2.plot(df['Date'],df['Freq_dt'],c='k',lw=0.75)
 ax2.set_title('Detrended data')
+ax2.set_ylim(-40,40)
+ax2.set_yticks(np.arange(-40,60,20))
+ax2.xaxis.set_major_formatter(DateFormatter('%y')) # convert 2006 to 06
+
+ax3 = plt.subplot(224)
+ax3.plot(df['Date'],df['Freq_sm'],c='k',lw=0.75)
+ax3.set_title('Smoothed data')
+ax3.set_ylim(-20,20)
+ax3.set_yticks(np.arange(-20,30,10))
+ax3.xaxis.set_major_formatter(DateFormatter('%y'))
+
+plt.tight_layout()
 plt.show()
 
 #%% initial exploration - compare by month
@@ -119,7 +139,7 @@ plt.show()
 # NOTES:
 #   Seems to show a trend rising in winter months, falling in summer
 #   No rise for christmas though!
-#   If we do fft, expect mag. peak around 16 cycles, aka yearly
+#   If we do fft, expect mag. peak around 16 cycles, aka 1 cycle per year
 
 #%% perform an fft
 
@@ -130,7 +150,7 @@ nYrs = ((df['Date'].iloc[-1] - df['Date'].iloc[0]).days)/365.25
 #   applying hann window to reduce frequency leakage
 #   upsampling (zero padding) to 4096 points to increase frequency resolution
 n = 4096
-w = np.fft.rfft(df['Freq_dt']*get_window('hann',N),n=n)
+w = np.fft.rfft(df['Freq_df']*signal.get_window('hann',N),n=n)
 
 # calculate amplitude and phase (as cosine phase, radians)
 w_amp = 2.0/n * np.abs(w[:n//2 + 1])
@@ -148,9 +168,9 @@ mHeight = q75 + 1.5*iqr
 mDist = np.round(1/(2*freqs[1])) # freqs starts at 0, so freqs[1] gives incr.
 
 #%%
-peaks, _ = find_peaks(w_amp, height=mHeight, distance=mDist)
+peaks, _ = signal.find_peaks(w_amp, height=mHeight, distance=mDist)
 
-test = np.column_stack((peaks,freqs[peaks],peak_prominences(w_amp,peaks)[0]))
+test = np.column_stack((peaks,freqs[peaks],signal.peak_prominences(w_amp,peaks)[0]))
 
 # plot
 f, ax = plt.subplots()
