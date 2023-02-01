@@ -11,7 +11,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.signal import get_window
+from scipy.signal import get_window, find_peaks
 
 # set dpi for figures
 plt.rcParams["figure.dpi"] = 300
@@ -132,17 +132,32 @@ nYrs = ((df['Date'].iloc[-1] - df['Date'].iloc[0]).days)/365.25
 n = 4096
 w = np.fft.rfft(df['Freq_dt']*get_window('hann',N),n=n)
 
-# calculate power
-w_pow = np.abs(w[:n//2 + 1])
+# calculate amplitude and phase (as cosine phase, radians)
+w_amp = 2.0/n * np.abs(w[:n//2 + 1])
+w_ph  = np.angle(w[:n//2 + 1])
 
 # get frequency range (in cycles per year)
-d = nYrs/N
-freqs = np.fft.rfftfreq(n,d)
+freqs = np.fft.rfftfreq(n,d=nYrs/N)
+
+# find the peaks in the amp. spectrum
+#   using standard outlier def. q3+1.5IQR for min. of peak height
+#   using half distance to one cycle as min. distance
+q25, q75 = np.percentile(w_amp, [25, 75])
+iqr = q75 - q25
+mHeight = q75 + 1.5*iqr
+mDist = np.round(1/(2*freqs[1])) # freqs starts at 0, so freqs[1] gives incr.
+
+#%%
+peaks, _ = find_peaks(w_amp, height=mHeight, distance=mDist)
+
+test = np.column_stack((peaks,freqs[peaks],peak_prominences(w_amp,peaks)[0]))
 
 # plot
 f, ax = plt.subplots()
-ax.plot(freqs,w_pow)
-ax.set_xlim(0,12)
+ax.plot(freqs,w_amp)
+plt.plot(freqs[peaks], w_amp[peaks], "x")
+ax.set_xlim(0,16)
+ax.set_ylim(0,0.6)
 ax.set_xlabel('Cycles per year')
-ax.set_ylabel('Power')
+ax.set_ylabel('Amplitude')
 plt.show()
