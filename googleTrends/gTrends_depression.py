@@ -150,7 +150,7 @@ nYrs = ((df['Date'].iloc[-1] - df['Date'].iloc[0]).days)/365.25
 #   applying hann window to reduce frequency leakage
 #   upsampling (zero padding) to 4096 points to increase frequency resolution
 n = 4096
-w = np.fft.rfft(df['Freq_df']*signal.get_window('hann',N),n=n)
+w = np.fft.rfft(df['Freq_dt']*signal.get_window('hann',N),n=n)
 
 # calculate amplitude and phase (as cosine phase, radians)
 w_amp = 2.0/n * np.abs(w[:n//2 + 1])
@@ -162,22 +162,22 @@ freqs = np.fft.rfftfreq(n,d=nYrs/N)
 # find the peaks in the amp. spectrum
 #   using standard outlier def. q3+1.5IQR for min. of peak height
 #   using half distance to one cycle as min. distance
+#   using third of max peaks height for min. prominence
 q25, q75 = np.percentile(w_amp, [25, 75])
-iqr = q75 - q25
-mHeight = q75 + 1.5*iqr
+mHeight = q75 + 1.5*(q75 - q25)
 mDist = np.round(1.0/(2.0*freqs[1])) # freqs starts at 0, so freqs[1] gives incr.
-
-#%%
-peaks, _ = signal.find_peaks(w_amp, height=mHeight, distance=mDist)
-
-test = np.column_stack((peaks,freqs[peaks],signal.peak_prominences(w_amp,peaks)[0]))
+mProm = w_amp.max()/3.0
+peaks, pProp = signal.find_peaks(w_amp, height=mHeight, prominence=mProm,distance=mDist)
 
 # plot
 f, ax = plt.subplots()
-ax.plot(freqs,w_amp)
-plt.plot(freqs[peaks], w_amp[peaks], "x")
+ax.plot(freqs,w_amp,c='k',lw=0.75)
+plt.plot(freqs[peaks], w_amp[peaks],'.',c='r')
+for cPk in peaks:
+    ax.text(freqs[cPk]+0.3,w_amp[cPk],'%.1f' % (freqs[cPk]),va='center',size='x-small')
 ax.set_xlim(0,16)
 ax.set_ylim(0,0.6)
+ax.set_title('Fourier Spectrum of Depression Search Trends')
 ax.set_xlabel('Cycles per year')
 ax.set_ylabel('Amplitude')
 plt.show()
