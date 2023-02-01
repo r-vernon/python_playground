@@ -173,7 +173,7 @@ peaks, pProp = signal.find_peaks(w_amp, height=mHeight, prominence=mProm,distanc
 f, ax = plt.subplots()
 ax.plot(freqs,w_amp,c='k',lw=0.75)
 ax.set_xlim(0,16)
-# ax.set_ylim(0,1.4)
+ax.set_ylim(0,3.0)
 ax.set_title('Fourier Spectrum of Depression Search Trends')
 ax.set_xlabel('Cycles per year')
 ax.set_ylabel('Amplitude')
@@ -207,11 +207,15 @@ plt.show()
 
 #%% explore the peaks (1+all)
 
-# t = np.linspace(0.0,2*np.pi,n+1)[0:N]
+t = np.linspace(0.0,2*np.pi,n+1)[0:N]
 p1 = w_amp[peaks[0]]*np.cos(peaks[0]*t + w_ph[peaks[0]])
 p2 = w_amp[peaks[1]]*np.cos(peaks[1]*t + w_ph[peaks[1]])
 p3 = w_amp[peaks[2]]*np.cos(peaks[2]*t + w_ph[peaks[2]])
 p4 = p1 + p2 + p3
+
+# calculate coefficient of determination
+p1_r2 = 1.0 - (np.var(df['Freq_dt']-p1)/np.var(df['Freq_dt']))
+p4_r2 = 1.0 - (np.var(df['Freq_dt']-p4)/np.var(df['Freq_dt']))
 
 # plot the comparison
 f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
