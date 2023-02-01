@@ -69,20 +69,20 @@ df = pd.concat(all_dat, axis=0, ignore_index=True)
 N = len(df)
 
 # time series (for sin/cos regressors)
-t = np.linspace(0.0,2*np.pi,N+1)[0:-1]
+t = np.linspace(0.0,2.0*np.pi,N+1)[0:-1]
 
 # preallocate array (betas)
 B = np.zeros((N,8))
 
 # create a matrix, we'll use constant, lin. trend and 1-3 cycles (sin+cos)
-B[:,0] = 1                  # constant
-B[:,1] = np.linspace(0,1,N) # linear trend
-B[:,2] = np.sin(t)          # single cycle
-B[:,3] = np.cos(t)          # "
-B[:,4] = np.sin(2*t)        # double cycle
-B[:,5] = np.cos(2*t)        # "
-B[:,6] = np.sin(3*t)        # triple cycle
-B[:,7] = np.cos(3*t)        # "
+B[:,0] = 1.0                    # constant
+B[:,1] = np.linspace(0.0,1.0,N) # linear trend
+B[:,2] = np.sin(t)              # single cycle
+B[:,3] = np.cos(t)              # "
+B[:,4] = np.sin(2.0*t)          # double cycle
+B[:,5] = np.cos(2.0*t)          # "
+B[:,6] = np.sin(3.0*t)          # triple cycle
+B[:,7] = np.cos(3.0*t)          # "
 
 # perform the regression
 modelFit = np.linalg.lstsq(B,df['Freq'],rcond=None)
@@ -165,7 +165,7 @@ freqs = np.fft.rfftfreq(n,d=nYrs/N)
 q25, q75 = np.percentile(w_amp, [25, 75])
 iqr = q75 - q25
 mHeight = q75 + 1.5*iqr
-mDist = np.round(1/(2*freqs[1])) # freqs starts at 0, so freqs[1] gives incr.
+mDist = np.round(1.0/(2.0*freqs[1])) # freqs starts at 0, so freqs[1] gives incr.
 
 #%%
 peaks, _ = signal.find_peaks(w_amp, height=mHeight, distance=mDist)
