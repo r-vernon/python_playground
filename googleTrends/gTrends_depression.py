@@ -57,12 +57,15 @@ for currYear in range(2006,2023):
 # concatenate
 df = pd.concat(all_dat, axis=0, ignore_index=True)
 
+# delete all_dat now it's concatenated
+del all_dat
+
 # check no missing dates (there aren't!)
 # dateDiff = df['Date'].diff()
 # dateDiff.plot()
 
 #%% create detrended version of the data
-#   we have 16yrs of data, so will filter out up to 3 cycles (every 5yrs ish)
+#   we have 17yrs of data, so will filter out up to 3 cycles (every 5yrs ish)
 #   as looking for cyclical shifts in a year, not longer trends
 #   (effectively crude high pass filter!)
 
@@ -93,6 +96,38 @@ df['Freq_dt'] = df['Freq'] - (B @ modelFit[0])
 
 # create a smoothed version to remove outliers (median filter)
 df['Freq_sm'] = signal.medfilt(df['Freq_dt'],5)
+
+#%% collapse the signal to represent 1yrs data
+
+# copy over just columns we want and set date as index
+df_us = df[['Date','Freq_dt']].copy()
+df_us.set_index('Date', inplace=True)
+
+# upsample so every day is represented
+df_us = df_us.asfreq(freq='D')
+
+# interpolate
+df_us['Freq_dt'] = df_us.interpolate(method='time')
+
+# find and drop leap year days (Feb 29)
+df_us.drop(df_us[(df_us.index.day==29) & (df_us.index.month==2)].index, inplace=True)
+
+# average across years
+yrAvg = np.zeros((365,1))
+yrDiv = np.zeros((365,1)) # custom divider as missing few days end of last year
+for currYr in range(2006,2023):
+    stDt  = '%d-01-01' % (currYr)
+    endDt = '%d-12-31' % (currYr)
+    currSig = df_us[(df_us.index >= stDt) & (df_us.index <= endDt)].values
+    yrAvg[0:len(currSig)] += currSig
+    yrDiv[0:len(currSig)] += 1
+yrAvg = np.divide(yrAvg,yrDiv)
+
+# delete df_us as no longer need it
+del df_us
+
+#%% plot the various data sets (orig, detrend, smooth, single cycle)
+# TODO - add single cycle!
 
 # plot the comparison
 ax1 = plt.subplot(211)
@@ -140,7 +175,7 @@ plt.show()
 # NOTES:
 #   Seems to show a trend rising in winter months, falling in summer
 #   No rise for christmas though!
-#   If we do fft, expect mag. peak around 16 cycles, aka 1 cycle per year
+#   If we do fft, expect mag. peak around 17 cycles, aka 1 cycle per year
 
 #%% perform an fft
 
@@ -284,19 +319,21 @@ xt = pd.date_range(start='2010-01-01',end='2010-12-01', freq='MS')
 xtl = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 # plot the main frequency of interest (1Y)
+ax[0,1].plot(datList,yrAvg,c='k',lw=1.0, alpha=0.75, clip_on=False)
 ax[0,1].plot(datList,p1_1Y,c='r',lw=1.0)
 ax[0,1].set_title('Single Year',fontdict={'fontsize':'small'},loc='left')
 ax[0,1].grid(axis='x')
-ax[0,1].set_ylim(-5,5)
-ax[0,1].set_yticks(np.arange(-6,8,2))
+ax[0,1].set_ylim(-9,9)
+ax[0,1].set_yticks(np.arange(-9,12,3))
 ax[0,1].set_xticks(xt, labels=xtl, fontsize='small', rotation=90.0, family='monospace')
 
 # plot all frequencies of interest (1Y)
+ax[1,1].plot(datList,yrAvg,c='k',lw=1.0, alpha=0.75, clip_on=False)
 ax[1,1].plot(datList,pCom_1Y,c='r',lw=1.0)
 ax[1,1].set_title('Single Year',fontdict={'fontsize':'small'},loc='left')
 ax[1,1].grid(axis='x')
-ax[1,1].set_ylim(-5,5)
-ax[1,1].set_yticks(np.arange(-6,8,2))
+ax[1,1].set_ylim(-9,9)
+ax[1,1].set_yticks(np.arange(-9,12,3))
 ax[1,1].set_xticks(xt, labels=xtl, fontsize='small', rotation=90.0, family='monospace')
 
 plt.show()
