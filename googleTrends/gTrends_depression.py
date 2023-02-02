@@ -162,19 +162,16 @@ freqs = np.fft.rfftfreq(n,d=nYrs/N)
 # find the peaks in the amp. spectrum
 #   using standard outlier def. q3+1.5IQR for min. of peak height
 #   using half distance to one cycle as min. distance
-#   using third of max peaks height for min. prominence
 q25, q75 = np.percentile(w_amp, [25, 75])
 mHeight = q75 + 1.5*(q75 - q25)
 mDist = np.round(1.0/(2.0*freqs[1])) # freqs starts at 0, so freqs[1] gives incr.
-mProm = w_amp.max()/3.0
-peaks, _ = signal.find_peaks(w_amp, height=mHeight, prominence=mProm,distance=mDist)
-
-#%%
-
 peaks, _ = signal.find_peaks(w_amp, height=mHeight ,distance=mDist)
+
+# calc. each peaks prominence and sort peaks in that order (most prom. first)
 peaksPr = signal.peak_prominences(w_amp, peaks)[0]
 peaksSr = [x for (y,x) in sorted(zip(peaksPr, peaks), key=lambda pair:pair[0],reverse=True)]
 
+# create a function to calculate R^2 (coeff determination) and adj. R^2
 sst = np.sum(np.square(df['Freq_dt']))
 def adjR2(pred,k):
     ssr = np.sum(np.square(df['Freq_dt']-pred))
@@ -182,6 +179,7 @@ def adjR2(pred,k):
     adj_r2 = 1.0 - (((1.0-r2)*(N-1.0)) / (N-k-1.0))
     return [r2, adj_r2]
 
+# calculate R^2 and adj. R^2 as you add more freqs to model
 k=0
 t = np.linspace(0.0,2*np.pi,n+1)[0:N]
 pred = np.zeros_like(t)
@@ -191,8 +189,12 @@ for cPeak in peaksSr:
     pred = pred + w_amp[cPeak]*np.cos(cPeak*t + w_ph[cPeak])
     all_r2[k-1,:] = adjR2(pred,k)
 
+# based on adj. R^2 - keeping 3 peaks
+#   first alone is ~20% var., then add about 5-6% [1], then 3-4% [2]
+#   after that it's about 2% and less adding more in
+#   more formal ways of doing it (likelihood etc), but it'll do!
+peaks = peaksSr[0:3]
 
-#%%
 # plot the fourier spectrum
 f, ax = plt.subplots()
 ax.plot(freqs,w_amp,c='k',lw=0.75)
@@ -215,7 +217,7 @@ tStr = ['Peaks identified using:',
     '\n'.join((
     '- height > %.2f' % (mHeight),
     '- distance between peaks > %.2f cycles/yr' % (freqs[round(mDist)]),
-    '- height above neighbours (prominance) > %.2f' % (mProm)))]
+    '- then used var. explained to select peaks of interest'))]
 ax.legend(handles=[h1,h2], labels=[tStr[0],tStr[1]], loc='upper right', 
           fontsize='x-small', facecolor='whitesmoke', labelspacing=0.1, 
           fancybox=False, edgecolor='black', handletextpad=0.0,
@@ -224,23 +226,22 @@ ax.legend(handles=[h1,h2], labels=[tStr[0],tStr[1]], loc='upper right',
 # show the thing
 plt.show()
 
-# found 3 peaks
+# the 3 peaks...
 #   first (1 cycle/yr) likely the dominant peak of interest
 #   second (2 cycles/yr) likely just a harmonic
 #   third (7 cycles/yr), no idea, interesting!
 
 #%% explore the peaks (1+all)
 
-t = np.linspace(0.0,2*np.pi,n+1)[0:N]
+# create the frequencies of interest
 p1 = w_amp[peaks[0]]*np.cos(peaks[0]*t + w_ph[peaks[0]])
 p2 = w_amp[peaks[1]]*np.cos(peaks[1]*t + w_ph[peaks[1]])
 p3 = w_amp[peaks[2]]*np.cos(peaks[2]*t + w_ph[peaks[2]])
 p4 = p1 + p2 + p3
 
 # calculate coefficient of determination
-sst = np.sum(np.square(df['Freq_dt']))
-p1_r2 = 1.0 - (np.sum(np.square(df['Freq_dt']-p1))/sst)
-p4_r2 = 1.0 - (np.sum(np.square(df['Freq_dt']-p4))/sst)
+p1_r2 = adjR2(p1,1)[0]
+p4_r2 = adjR2(p4,4)[0]
 
 # plot the comparison
 f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
