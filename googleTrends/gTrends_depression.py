@@ -180,24 +180,17 @@ def adjR2(pred,k):
     ssr = np.sum(np.square(df['Freq_dt']-pred))
     r2 = 1.0 - (ssr/sst)
     adj_r2 = 1.0 - (((1.0-r2)*(N-1.0)) / (N-k-1.0))
-    return [r2, adj_r2, ssr, mDF]
+    return [r2, adj_r2]
 
 k=0
 t = np.linspace(0.0,2*np.pi,n+1)[0:N]
 pred = np.zeros_like(t)
-all_r2 = np.zeros((len(peaks),4))
+all_r2 = np.zeros((len(peaks),2))
 for cPeak in peaksSr:
     k += 1
     pred = pred + w_amp[cPeak]*np.cos(cPeak*t + w_ph[cPeak])
     all_r2[k-1,:] = adjR2(pred,k)
 
-ss1_ss2 = -1*np.diff(all_r2[:,2])
-df1_df2 = -1*np.diff(all_r2[:,3])
-ss2_df2 = all_r2[1:,2]/all_r2[1:,3]
-all_F = ((-1*np.diff(all_r2[:,2]))/(-1*np.diff(all_r2[:,3]))) / (all_r2[1:,2]/all_r2[1:,3])
-
-# from scipy.stats import f
-critF = f.ppf(q=1-.05, dfn=(-1*np.diff(all_r2[:,3])), dfd = all_r2[1:,3])
 
 #%%
 # plot the fourier spectrum
