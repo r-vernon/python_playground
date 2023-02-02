@@ -167,8 +167,39 @@ q25, q75 = np.percentile(w_amp, [25, 75])
 mHeight = q75 + 1.5*(q75 - q25)
 mDist = np.round(1.0/(2.0*freqs[1])) # freqs starts at 0, so freqs[1] gives incr.
 mProm = w_amp.max()/3.0
-peaks, pProp = signal.find_peaks(w_amp, height=mHeight, prominence=mProm,distance=mDist)
+peaks, _ = signal.find_peaks(w_amp, height=mHeight, prominence=mProm,distance=mDist)
 
+#%%
+
+peaks, _ = signal.find_peaks(w_amp, height=mHeight ,distance=mDist)
+peaksPr = signal.peak_prominences(w_amp, peaks)[0]
+peaksSr = [x for (y,x) in sorted(zip(peaksPr, peaks), key=lambda pair:pair[0],reverse=True)]
+
+sst = np.sum(np.square(df['Freq_dt']))
+def adjR2(pred,k):
+    ssr = np.sum(np.square(df['Freq_dt']-pred))
+    r2 = 1.0 - (ssr/sst)
+    adj_r2 = 1.0 - (((1.0-r2)*(N-1.0)) / (N-k-1.0))
+    return [r2, adj_r2, ssr, mDF]
+
+k=0
+t = np.linspace(0.0,2*np.pi,n+1)[0:N]
+pred = np.zeros_like(t)
+all_r2 = np.zeros((len(peaks),4))
+for cPeak in peaksSr:
+    k += 1
+    pred = pred + w_amp[cPeak]*np.cos(cPeak*t + w_ph[cPeak])
+    all_r2[k-1,:] = adjR2(pred,k)
+
+ss1_ss2 = -1*np.diff(all_r2[:,2])
+df1_df2 = -1*np.diff(all_r2[:,3])
+ss2_df2 = all_r2[1:,2]/all_r2[1:,3]
+all_F = ((-1*np.diff(all_r2[:,2]))/(-1*np.diff(all_r2[:,3]))) / (all_r2[1:,2]/all_r2[1:,3])
+
+# from scipy.stats import f
+critF = f.ppf(q=1-.05, dfn=(-1*np.diff(all_r2[:,3])), dfd = all_r2[1:,3])
+
+#%%
 # plot the fourier spectrum
 f, ax = plt.subplots()
 ax.plot(freqs,w_amp,c='k',lw=0.75)
@@ -214,8 +245,9 @@ p3 = w_amp[peaks[2]]*np.cos(peaks[2]*t + w_ph[peaks[2]])
 p4 = p1 + p2 + p3
 
 # calculate coefficient of determination
-p1_r2 = 1.0 - (np.var(df['Freq_dt']-p1)/np.var(df['Freq_dt']))
-p4_r2 = 1.0 - (np.var(df['Freq_dt']-p4)/np.var(df['Freq_dt']))
+sst = np.sum(np.square(df['Freq_dt']))
+p1_r2 = 1.0 - (np.sum(np.square(df['Freq_dt']-p1))/sst)
+p4_r2 = 1.0 - (np.sum(np.square(df['Freq_dt']-p4))/sst)
 
 # plot the comparison
 f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
