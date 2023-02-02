@@ -150,8 +150,14 @@ ax3.set_ylim(-20,20)
 ax3.set_yticks(np.arange(-20,30,10))
 ax3.xaxis.set_major_formatter(DateFormatter('%y'))
 
+# keep things tight
 plt.tight_layout()
+
+# save the figure and show
+plt.savefig('./Fig1.png',dpi=150, pad_inches=0)
 plt.show()
+
+
 
 #%% initial exploration - compare by month
 
@@ -170,6 +176,9 @@ ax.set_title('Depression Searches by Month')
 ax.set_ylabel('Search Frequency (Arb. Units)')
 ax.axhline(y=0.0, color='black', linestyle='-', linewidth=1)
 f.text(0.88, 0.15, 'Errorbars +/- 1SD', ha='right',size='x-small')
+
+# save the figure and show
+plt.savefig('./Fig2.png',dpi=150, pad_inches=0)
 plt.show()
 
 # NOTES:
@@ -260,7 +269,8 @@ ax.legend(handles=[h1,h2], labels=[tStr[0],tStr[1]], loc='upper right',
           fancybox=False, edgecolor='black', handletextpad=0.0,
           borderpad=0.5, borderaxespad=1)
 
-# show the thing
+# save the figure and show
+plt.savefig('./Fig3.png',dpi=150, pad_inches=0)
 plt.show()
 
 # the 3 peaks...
@@ -293,6 +303,7 @@ pCom_1Y = (p1_1Y
 # create a subplot
 f, ax = plt.subplots(ncols=2, nrows=2, constrained_layout=True,
                      gridspec_kw={'width_ratios':[2,1]})
+f.suptitle('Depression Search Trends vs FFT Freq.', fontsize='medium')
 
 # plot the main frequency of interest
 ax[0,0].plot(df['Date'],df['Freq_dt'],c='k',lw=0.75, alpha=0.75, clip_on=False)
@@ -319,23 +330,25 @@ xt = pd.date_range(start='2010-01-01',end='2010-12-01', freq='MS')
 xtl = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 # plot the main frequency of interest (1Y)
-ax[0,1].plot(datList,yrAvg,c='k',lw=1.0, alpha=0.75, clip_on=False)
+ax[0,1].plot(datList,yrAvg,c='k',lw=1.0, alpha=0.75)
 ax[0,1].plot(datList,p1_1Y,c='r',lw=1.0)
 ax[0,1].set_title('Single Year',fontdict={'fontsize':'small'},loc='left')
 ax[0,1].grid(axis='x')
-ax[0,1].set_ylim(-9,9)
-ax[0,1].set_yticks(np.arange(-9,12,3))
+ax[0,1].set_ylim(-10,10)
+ax[0,1].set_yticks(np.arange(-10,15,5))
 ax[0,1].set_xticks(xt, labels=xtl, fontsize='small', rotation=90.0, family='monospace')
 
 # plot all frequencies of interest (1Y)
-ax[1,1].plot(datList,yrAvg,c='k',lw=1.0, alpha=0.75, clip_on=False)
+ax[1,1].plot(datList,yrAvg,c='k',lw=1.0, alpha=0.75)
 ax[1,1].plot(datList,pCom_1Y,c='r',lw=1.0)
 ax[1,1].set_title('Single Year',fontdict={'fontsize':'small'},loc='left')
 ax[1,1].grid(axis='x')
-ax[1,1].set_ylim(-9,9)
-ax[1,1].set_yticks(np.arange(-9,12,3))
+ax[1,1].set_ylim(-10,10)
+ax[1,1].set_yticks(np.arange(-10,15,5))
 ax[1,1].set_xticks(xt, labels=xtl, fontsize='small', rotation=90.0, family='monospace')
 
+# save the figure and show
+plt.savefig('./Fig4.png',dpi=150, pad_inches=0)
 plt.show()
 
 
