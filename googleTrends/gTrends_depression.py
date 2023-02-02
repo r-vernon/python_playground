@@ -62,8 +62,9 @@ df = pd.concat(all_dat, axis=0, ignore_index=True)
 # dateDiff.plot()
 
 #%% create detrended version of the data
-# we have 16yrs of data, so will filter out up to 3 cycles (every 5yrs ish)
+#   we have 16yrs of data, so will filter out up to 3 cycles (every 5yrs ish)
 #   as looking for cyclical shifts in a year, not longer trends
+#   (effectively crude high pass filter!)
 
 # number of data points
 N = len(df)
@@ -242,19 +243,17 @@ p3 = w_amp[peaks[2]]*np.cos(peaks[2]*t + w_ph[peaks[2]])
 pCom = p1 + p2 + p3
 
 # calculate adjust coefficient of determination (adj R^2)
-p1_r2 = adjR2(p1,1)[1]
-pCom_r2 = adjR2(pCom,4)[1]
+p1_ar2 = adjR2(p1,1)[1]
+pCom_ar2 = adjR2(pCom,4)[1]
 
-# grab cycle for a single year (2010, arbitrary)
-t_1Dint = t[-1]/nDays # t end is cycle over all days, so calc. interval for 1 day
+# grab cycle for a single year (2010, arbitrary as long as not leap year!)
 datList = pd.date_range(start='2010-01-01',end='2010-12-31')
+t_1Dint = t[-1]/nDays # t[end] is cycle over all days, so calc. interval for 1 day
 t_1Y = np.arange(0,365*t_1Dint,t_1Dint)
 p1_1Y = w_amp[peaks[0]]*np.cos(peaks[0]*t_1Y + w_ph[peaks[0]])
 pCom_1Y = (p1_1Y
            + w_amp[peaks[1]]*np.cos(peaks[1]*t_1Y + w_ph[peaks[1]])
            + w_amp[peaks[2]]*np.cos(peaks[2]*t_1Y + w_ph[peaks[2]]))
-
-#%%
 
 # create a subplot
 f, ax = plt.subplots(ncols=2, nrows=2, constrained_layout=True,
@@ -263,7 +262,7 @@ f, ax = plt.subplots(ncols=2, nrows=2, constrained_layout=True,
 # plot the main frequency of interest
 ax[0,0].plot(df['Date'],df['Freq_dt'],c='k',lw=0.75, alpha=0.75, clip_on=False)
 ax[0,0].plot(df['Date'],p1,c='r',lw=0.75)
-ax[0,0].text(0.98,0.9,'adj. $R^2$ = %.2f' % (p1_r2),fontsize='x-small',
+ax[0,0].text(0.98,0.9,'adj. $R^2$ = %.2f' % (p1_ar2),fontsize='x-small',
              ha='right',transform=ax[0,0].transAxes)
 ax[0,0].set_title('1 Cycle/yr',fontdict={'fontsize':'small'},loc='left')
 ax[0,0].set_ylim(-20,20)
@@ -273,7 +272,7 @@ ax[0,0].xaxis.set_major_formatter(DateFormatter('%y'))
 # plot all frequencies of interest
 ax[1,0].plot(df['Date'],df['Freq_dt'],c='k',lw=0.75, alpha=0.75, clip_on=False)
 ax[1,0].plot(df['Date'],pCom,c='r',lw=0.75)
-ax[1,0].text(0.98,0.9,'adj. $R^2$ = %.2f' % (pCom_r2),fontsize='x-small',
+ax[1,0].text(0.98,0.9,'adj. $R^2$ = %.2f' % (pCom_ar2),fontsize='x-small',
              ha='right',transform=ax[1,0].transAxes)
 ax[1,0].set_title('1+2+7 Cycles/yr',fontdict={'fontsize':'small'},loc='left')
 ax[1,0].set_ylim(-20,20)
