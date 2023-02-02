@@ -144,7 +144,8 @@ plt.show()
 #%% perform an fft
 
 # calculate number of years data we have
-nYrs = ((df['Date'].iloc[-1] - df['Date'].iloc[0]).days)/365.25
+nDays = (df['Date'].iloc[-1] - df['Date'].iloc[0]).days
+nYrs = nDays/365.25
 
 # perform fft
 #   applying hann window to reduce frequency leakage
@@ -233,29 +234,72 @@ plt.show()
 
 #%% explore the peaks (1+all)
 
-# create the frequencies of interest
+# create the frequencies of interest (recreating 't' from above for clarity)
+t = np.linspace(0.0,2*np.pi,n+1)[0:N]
 p1 = w_amp[peaks[0]]*np.cos(peaks[0]*t + w_ph[peaks[0]])
 p2 = w_amp[peaks[1]]*np.cos(peaks[1]*t + w_ph[peaks[1]])
 p3 = w_amp[peaks[2]]*np.cos(peaks[2]*t + w_ph[peaks[2]])
-p4 = p1 + p2 + p3
+pCom = p1 + p2 + p3
 
-# calculate coefficient of determination
-p1_r2 = adjR2(p1,1)[0]
-p4_r2 = adjR2(p4,4)[0]
+# calculate adjust coefficient of determination (adj R^2)
+p1_r2 = adjR2(p1,1)[1]
+pCom_r2 = adjR2(pCom,4)[1]
 
-# plot the comparison
-f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
-ax1.plot(df['Date'],df['Freq_dt'],c='k',lw=0.75, alpha=0.75, clip_on=False)
-ax1.plot(df['Date'],p1,c='r',lw=0.75)
-ax1.set_ylim(-20,20)
-ax1.set_yticks(np.arange(-20,30,10))
+# grab cycle for a single year (2010, arbitrary)
+t_1Dint = t[-1]/nDays # t end is cycle over all days, so calc. interval for 1 day
+datList = pd.date_range(start='2010-01-01',end='2010-12-31')
+t_1Y = np.arange(0,365*t_1Dint,t_1Dint)
+p1_1Y = w_amp[peaks[0]]*np.cos(peaks[0]*t_1Y + w_ph[peaks[0]])
+pCom_1Y = (p1_1Y
+           + w_amp[peaks[1]]*np.cos(peaks[1]*t_1Y + w_ph[peaks[1]])
+           + w_amp[peaks[2]]*np.cos(peaks[2]*t_1Y + w_ph[peaks[2]]))
 
-ax2.plot(df['Date'],df['Freq_dt'],c='k',lw=0.75, alpha=0.75, clip_on=False)
-ax2.plot(df['Date'],p4,c='r',lw=0.75)
-ax2.set_ylim(-20,20)
-ax2.set_yticks(np.arange(-20,30,10))
+#%%
 
-plt.tight_layout()
+# create a subplot
+f, ax = plt.subplots(ncols=2, nrows=2, constrained_layout=True,
+                     gridspec_kw={'width_ratios':[2,1]})
+
+# plot the main frequency of interest
+ax[0,0].plot(df['Date'],df['Freq_dt'],c='k',lw=0.75, alpha=0.75, clip_on=False)
+ax[0,0].plot(df['Date'],p1,c='r',lw=0.75)
+ax[0,0].text(0.98,0.9,'adj. $R^2$ = %.2f' % (p1_r2),fontsize='x-small',
+             ha='right',transform=ax[0,0].transAxes)
+ax[0,0].set_title('1 Cycle/yr',fontdict={'fontsize':'small'},loc='left')
+ax[0,0].set_ylim(-20,20)
+ax[0,0].set_yticks(np.arange(-20,30,10))
+ax[0,0].xaxis.set_major_formatter(DateFormatter('%y')) 
+
+# plot all frequencies of interest
+ax[1,0].plot(df['Date'],df['Freq_dt'],c='k',lw=0.75, alpha=0.75, clip_on=False)
+ax[1,0].plot(df['Date'],pCom,c='r',lw=0.75)
+ax[1,0].text(0.98,0.9,'adj. $R^2$ = %.2f' % (pCom_r2),fontsize='x-small',
+             ha='right',transform=ax[1,0].transAxes)
+ax[1,0].set_title('1+2+7 Cycles/yr',fontdict={'fontsize':'small'},loc='left')
+ax[1,0].set_ylim(-20,20)
+ax[1,0].set_yticks(np.arange(-20,30,10))
+ax[1,0].xaxis.set_major_formatter(DateFormatter('%y')) 
+
+# create xticks and xtick labels for upcoming (1Yr) graphs
+xt = pd.date_range(start='2010-01-01',end='2010-12-01', freq='MS')
+xtl = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+# plot the main frequency of interest (1Y)
+ax[0,1].plot(datList,p1_1Y,c='r',lw=1.0)
+ax[0,1].set_title('Single Year',fontdict={'fontsize':'small'},loc='left')
+ax[0,1].grid(axis='x')
+ax[0,1].set_ylim(-5,5)
+ax[0,1].set_yticks(np.arange(-6,8,2))
+ax[0,1].set_xticks(xt, labels=xtl, fontsize='small', rotation=90.0, family='monospace')
+
+# plot all frequencies of interest (1Y)
+ax[1,1].plot(datList,pCom_1Y,c='r',lw=1.0)
+ax[1,1].set_title('Single Year',fontdict={'fontsize':'small'},loc='left')
+ax[1,1].grid(axis='x')
+ax[1,1].set_ylim(-5,5)
+ax[1,1].set_yticks(np.arange(-6,8,2))
+ax[1,1].set_xticks(xt, labels=xtl, fontsize='small', rotation=90.0, family='monospace')
+
 plt.show()
 
 
