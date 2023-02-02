@@ -217,7 +217,7 @@ tStr = ['Peaks identified using:',
     '\n'.join((
     '- height > %.2f' % (mHeight),
     '- distance between peaks > %.2f cycles/yr' % (freqs[round(mDist)]),
-    '- then used var. explained to select peaks of interest'))]
+    '- then used adj. $R^2$ to select peaks of interest'))]
 ax.legend(handles=[h1,h2], labels=[tStr[0],tStr[1]], loc='upper right', 
           fontsize='x-small', facecolor='whitesmoke', labelspacing=0.1, 
           fancybox=False, edgecolor='black', handletextpad=0.0,
