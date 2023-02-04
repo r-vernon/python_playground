@@ -36,14 +36,14 @@ for currYear in range(2006,2023):
         # read in current year, skip 2 rows, 
         # **use colums 0+1**, treat row0 as header, rename cols, 
         # parse col1 as date
-        df = (pd.read_csv('./data/Depression_%d.csv' % (currYear),skiprows=2,
+        df = (pd.read_csv('./data_UK/Depression_%d.csv' % (currYear),skiprows=2,
                           usecols=[0,1],header=0,names=['Date','Freq'],
                           parse_dates=[0]))
     else:
         # read in current year, skip 2 rows, 
         # **use colums 2+3**, treat row0 as header, rename cols, 
         # parse col1 as date
-        df = (pd.read_csv('./data/Depression_%d.csv' % (currYear),skiprows=2,
+        df = (pd.read_csv('./data_UK/Depression_%d.csv' % (currYear),skiprows=2,
                           usecols=[2,3],header=0,names=['Date','Freq'],
                           parse_dates=[0]))
     
@@ -177,7 +177,7 @@ ax4.set_xticks(xt, labels=xtl, fontsize='x-small', rotation=90.0, family='monosp
 plt.subplots_adjust(wspace=0.2,hspace=0.4)
 
 # save the figure and show
-if saveF: plt.savefig('./Fig1.png',dpi=150, pad_inches=0)
+if saveF: plt.savefig('./Fig1_UK.png',dpi=150, pad_inches=0)
 plt.show()
 
 #%% initial exploration - compare by month
@@ -199,7 +199,7 @@ ax.axhline(y=0.0, color='black', linestyle='-', linewidth=1)
 f.text(0.88, 0.15, 'Errorbars +/- 1SD', ha='right',size='x-small')
 
 # save the figure and show
-if saveF: plt.savefig('./Fig2.png',dpi=150, pad_inches=0)
+if saveF: plt.savefig('./Fig2_UK.png',dpi=150, pad_inches=0)
 plt.show()
 
 # NOTES:
@@ -291,7 +291,7 @@ ax.legend(handles=[h1,h2], labels=[tStr[0],tStr[1]], loc='upper right',
           borderpad=0.5, borderaxespad=1)
 
 # save the figure and show
-if saveF: plt.savefig('./Fig3.png',dpi=150, pad_inches=0)
+if saveF: plt.savefig('./Fig3_UK.png',dpi=150, pad_inches=0)
 plt.show()
 
 # the 3 peaks...
@@ -366,7 +366,7 @@ ax[1,1].set_yticks(np.arange(-10,15,5))
 ax[1,1].set_xticks(xt, labels=xtl, fontsize='small', rotation=90.0, family='monospace')
 
 # save the figure and show
-if saveF: plt.savefig('./Fig4.png',dpi=150, pad_inches=0)
+if saveF: plt.savefig('./Fig4_UK.png',dpi=150, pad_inches=0)
 plt.show()
 
 
