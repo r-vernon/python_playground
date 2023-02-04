@@ -53,6 +53,9 @@ for currYear in range(2006,2023):
 # concatenate
 df = pd.concat(all_dat, axis=0, ignore_index=True)
 
+# delete any data from 1970 as erroneous!
+df.drop(df[(df['Date'].dt.year==1970)].index, inplace=True)
+
 # delete all_dat now it's concatenated
 del all_dat
 
@@ -176,8 +179,6 @@ plt.subplots_adjust(wspace=0.2,hspace=0.4)
 # save the figure and show
 if saveF: plt.savefig('./Fig1.png',dpi=150, pad_inches=0)
 plt.show()
-
-
 
 #%% initial exploration - compare by month
 
