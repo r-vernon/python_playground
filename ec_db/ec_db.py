@@ -18,6 +18,7 @@ import re
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from unidecode import unidecode
 
 # change directory to location of script
 os.chdir(os.path.dirname(__file__))
@@ -62,59 +63,40 @@ allTitle, allAuth, allDesc, allTags, allCats, allURLs = ([] for x in range(6))
 #%%----------------------------------------------------------------------------
 # loop over every author initial (A-Z) grabbing data
 
-# for testing purposes...
-# inc1 = 0; currStr = 'A'
-# inc1 = 1; currStr = 'B'
-
-for inc1, currStr in enumerate(strList):
+for currStr in strList:
     
     # set url to access
     url = f'http://www.{baseURL}/indexes/authorindex_{currStr}.htm'
     
     # access the page and parse it
-    response = requests.get(url, headers=headers)
-    html_text = response.text
+    html_text = requests.get(url, headers=headers).text
     soup = BeautifulSoup(html_text,'lxml')
     
     # get all stories
     links = soup.find_all('a', href=True)
+                    
+    # get new details format: (URL, (Desc+Tags, Title+Cat+Author))
+    newURLs,newDets = zip(*[(x['href'],(x['title'], x.text)) for x in links])
     
-    # get new details (URL, Desc+Tags, Title+Cat+Author)
-    newDets = [(x['href'], x['title'], x.text) for x in links]
-    
-    # create the empty lists to store new data
-    newTitle, newAuth, newDesc, newTags, newCats, newURLs = ([] for x in range(6))
-    
-    # for testing purposes...
-    # inc2=0;currDet=newDets[0]
+    # add new URLs to current list
+    allURLs.extend(newURLs)
     
     # loop over newDets (more readable than list comprehension)
-    for inc2, currDet in enumerate(newDets):
-        
-        # get URL
-        newURLs.append(currDet[0])
-        
+    for currDet in newDets:
+
         # get description, tags
         # format: 'description [tag1] [...] [tagN]'
         # splitting based on '[any num. chars. (greedy)]EOL'
-        tmp = re.split('(\[.*\]$)',currDet[1])
-        newDesc.append(tmp[0])
-        newTags.append(tmp[1])
+        tmp = re.split('(\[.*\]$)',currDet[0])
+        allDesc.append(tmp[0])
+        allTags.append(tmp[1])
         
         # get titles, category, author 
         # format: 'title [cat.] auth.' so splitting based on '[' and ']'
-        tmp = re.split('[\[\]]',currDet[2])
-        newTitle.append(tmp[0])
-        newCats.append(tmp[1])
-        newAuth.append(tmp[2])    
-          
-    # append to list (extend as adding list not item)
-    allTitle.extend(newTitle)
-    allAuth.extend(newAuth)
-    allDesc.extend(newDesc)
-    allTags.extend(newTags)
-    allCats.extend(newCats)   
-    allURLs.extend(newURLs)
+        tmp = re.split('[\[\]]',currDet[1])
+        allTitle.append(tmp[0])
+        allCats.append(tmp[1])
+        allAuth.append(tmp[2])    
     
     # print just so we know progress
     print(f'Processed {currStr}')
@@ -133,31 +115,36 @@ def regStr(strList):
     # strip unnecessary whitespace from L&R
     # concert to lower case (casefold more aggressive)
     # remove unecessary whitespace (without regex for readability)
+    # use unidecode to ensure characters are ASCII friendly
     strList = [x.translate(tbl).strip().casefold() for x in strList]
     strList = [' '.join(x.split()) for x in strList]
+    strList = [unidecode(x) for x in strList]
     return strList
 
-# regularise author, description, tags, title
+# regularise title author, description, tags
+allTitle = regStr(allTitle)
 allAuth = regStr(allAuth)
 allDesc = regStr(allDesc)
 allTags = regStr(allTags)
-allTitle = regStr(allTitle)
 
-# changes tags from [tag1] [tag2] [...] [tagN] to tag1,tag2,...,tagN
-#   re.findall('\[.*?\]',x)  - finds all items between square brackets
-#   ','.join(...)            - joins those items as a comma sep. list
-#   re.sub('[\[\]]','',...)  - strips the square brackets out
-allTags = [re.sub('[\[\]]','',','.join(re.findall('\[.*?\]',x)))
+# changes tags from (tag1) (tag2) (...) (tagN) to tag1,tag2,...,tagN
+#   (regularised hence (tag1) not [tag1])
+#   re.findall('\(.*?\)',x)  - finds all items between brackets
+#   sorted(...)              - sorts the items
+#   ','.join(...)            - rejoins those items as a comma seperated list
+#   re.sub('[\(\)]','',...)  - strips the brackets 
+allTags = [re.sub('[\(\)]','',','.join(sorted(re.findall('\(.*?\)',x))))
           for x in allTags]
 
-# for cat, strip whitespace, replace 'none' with 'A' (any), 
-# should be one upper char.
-allCats = [x.strip() for x in allCats]
-allCats = ['A' if x.upper() == 'NONE' else x[0].upper() for x in allCats]
+# for categories
+#   strip whitespace, convert to upper case
+#   replace 'none' with 'A' (any), make sure the rest are one char
+allCats = [x.strip().upper() for x in allCats]
+allCats = ['A' if x == 'NONE' else x[0] for x in allCats]
 
 # create a  dataframe from info
 df = pd.DataFrame(zip(allTitle, allAuth, allDesc, allTags, allCats, allURLs), 
                       columns=['Title', 'Author', 'Desc', 'Tags', 'Cat', 'URL'])
 
 # save out the result
-# df.to_csv('/home/richard/Documents/Python/ec_db/ec_db.csv',sep='\t',index=False)
+df.to_csv('ec_db.csv',sep='\t',index=False)
