@@ -17,8 +17,8 @@ from scipy import signal
 # set dpi for figures
 plt.rcParams["figure.dpi"] = 300
 
-# set directory
-os.chdir('/home/richard/Documents/Python/googleTrends/')
+# change directory to location of script
+os.chdir(os.path.dirname(__file__))
 
 # set flag to save figure
 saveF = 0
