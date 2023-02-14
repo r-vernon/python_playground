@@ -54,15 +54,19 @@ headers = {'Accept-Language' : 'en-GB,en-US;q=0.9,en;q=0.8',
                        +' Chrome/109.0.0.0 Safari/537.36'}
 
 # create stringlist (A-Z)
-strList = map(chr, range(ord('A'), ord('B')+1))
+strList = map(chr, range(ord('A'), ord('Z')+1))
 
 # create the empty lists to store data (faster than updating dataframe)
-allTitle = allAuth = allDesc = allTags = allCats = allURLs = []
+allTitle, allAuth, allDesc, allTags, allCats, allURLs = ([] for x in range(6))
 
 #%%----------------------------------------------------------------------------
 # loop over every author initial (A-Z) grabbing data
 
-for inc, currStr in enumerate(strList):
+# for testing purposes...
+# inc1 = 0; currStr = 'A'
+# inc1 = 1; currStr = 'B'
+
+for inc1, currStr in enumerate(strList):
     
     # set url to access
     url = f'http://www.{baseURL}/indexes/authorindex_{currStr}.htm'
@@ -78,27 +82,39 @@ for inc, currStr in enumerate(strList):
     # get new details (URL, Desc+Tags, Title+Cat+Author)
     newDets = [(x['href'], x['title'], x.text) for x in links]
     
-    # get URLs
-    newURLs = [x[0] for x in newDets]
+    # create the empty lists to store new data
+    newTitle, newAuth, newDesc, newTags, newCats, newURLs = ([] for x in range(6))
     
-    # get description, tags
-    # format: 'description [tag1] [...] [tagN]'
-    # splitting based on '[ <any num. chars. (greedy)>]EOL'
-    tmp = [re.split('(\[.*\]$)',x[1]) for x in newDets] # extract
-    newDesc, newTags, *_ = [list(x) for x in zip(*tmp)] # unpack
+    # for testing purposes...
+    # inc2=0;currDet=newDets[0]
     
-    # get titles, category, author 
-    # format: 'title [cat.] auth.' so splitting based on '[' or ']'
-    tmp = [re.split('[\[\]]',x[2]) for x in newDets] # extract
-    newTitle, newCats, newAuth = [list(x) for x in zip(*tmp)]  # unpack
-
-    # append to list
-    allTitle.append(allTitle)
-    allAuth.append(newAuth)
-    allDesc.append(allDesc)
-    allTags.append(allTags)
-    allCats.append(allCats)   
-    allURLs.append(allURLs)
+    # loop over newDets (more readable than list comprehension)
+    for inc2, currDet in enumerate(newDets):
+        
+        # get URL
+        newURLs.append(currDet[0])
+        
+        # get description, tags
+        # format: 'description [tag1] [...] [tagN]'
+        # splitting based on '[any num. chars. (greedy)]EOL'
+        tmp = re.split('(\[.*\]$)',currDet[1])
+        newDesc.append(tmp[0])
+        newTags.append(tmp[1])
+        
+        # get titles, category, author 
+        # format: 'title [cat.] auth.' so splitting based on '[' and ']'
+        tmp = re.split('[\[\]]',currDet[2])
+        newTitle.append(tmp[0])
+        newCats.append(tmp[1])
+        newAuth.append(tmp[2])    
+          
+    # append to list (extend as adding list not item)
+    allTitle.extend(newTitle)
+    allAuth.extend(newAuth)
+    allDesc.extend(newDesc)
+    allTags.extend(newTags)
+    allCats.extend(newCats)   
+    allURLs.extend(newURLs)
     
     # print just so we know progress
     print(f'Processed {currStr}')
