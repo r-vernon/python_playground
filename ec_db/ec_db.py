@@ -111,10 +111,10 @@ tbl = str.maketrans('[{<]}>+','((()))&','"\'#*')
 
 # define a function to regularise strings in a list
 def regStr(strList):
-    # remove or alter unnecessary punctuation
-    # strip unnecessary whitespace from L&R
-    # concert to lower case (casefold more aggressive)
-    # remove unecessary whitespace (without regex for readability)
+    # remove or alter unnecessary punctuation (translate)
+    # strip unnecessary outer whitespace from L&R
+    # convert to lower case (casefold more aggressive)
+    # remove unecessary inner whitespace (without regex for readability)
     # use unidecode to ensure characters are ASCII friendly
     strList = [x.translate(tbl).strip().casefold() for x in strList]
     strList = [' '.join(x.split()) for x in strList]
