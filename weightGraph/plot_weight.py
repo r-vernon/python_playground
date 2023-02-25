@@ -101,6 +101,11 @@ concDate = (datetime(2022,9,28),weight_dat.index.max())
 # sleep apnea diagnosed
 apneaDate = (datetime(2020,10,19))
 
+# work stress started (day email sent about mrMeshPy mesh issue)
+# (get weight on this day too, plotting purposes)
+wStressDate = (datetime(2018,4,10))
+wStressWt = weight_dat.loc[wStressDate,'iWeight']
+
 #%% calculate rates of change
 #
 # for ADHD meds, assuming instant impact
@@ -149,8 +154,15 @@ plt.plot(weight_dat.index,weight_dat['Weight'],'o',markersize=1, color='black')
 # plot the line on top
 plt.plot(weight_dat.index,weight_dat['sWeight'],'-', alpha=0.8)
 
+# add x-axis minor tick marks for months
+ax.xaxis.set_minor_locator(md.MonthLocator())
+
 # add secondary y-axis for bmi
 secax = ax.secondary_yaxis('right', functions=(kg2bmi, bmi2kg))
+
+# add axis gridlines 
+ax.grid(axis='both',which='major',alpha=0.4,linewidth=0.6)
+ax.grid(axis='x',which='minor',alpha=0.2,linewidth=0.3)
 
 # set axis lables
 plt.xlabel('Date')
@@ -163,21 +175,29 @@ yU = 151
 plt.ylim(yL,yU)
 
 # fill areas of interest
-ax.fill_betweenx((yL,yU), elvDate[0],   elvDate[1],   alpha=0.2, color='steelblue')
-ax.fill_betweenx((yL,yU), sertDate[0],  sertDate[1],  alpha=0.2, color='tomato')
-# ax.fill_betweenx((yL,yU), trazDate[0],  trazDate[1],  alpha=0.2, color='orange')
-ax.fill_betweenx((yL,yU), fluoxDate[0], fluoxDate[1], alpha=0.2, color='gold')
-ax.fill_betweenx((yL,yU), concDate[0],  concDate[1],  alpha=0.2, color='cadetblue')
+ax.fill_betweenx((yL,yU), elvDate[0],   elvDate[1],   alpha=0.2, fc='steelblue')
+ax.fill_betweenx((yL,yU), sertDate[0],  sertDate[1],  alpha=0.2, fc='tomato')
+# ax.fill_betweenx((yL,yU), trazDate[0],  trazDate[1],  alpha=0.2, fc='orange')
+ax.fill_betweenx((yL,yU), fluoxDate[0], fluoxDate[1], alpha=0.2, fc='gold')
+ax.fill_betweenx((yL,yU), concDate[0],  concDate[1],  alpha=0.2, fc='cadetblue')
+
+# # add an annotation for work stress date start
+ax.annotate('work stress started', xy=(wStressDate, wStressWt), 
+            size='xx-small', ha='left', va='top', style='italic',
+            xytext=(wStressDate+timedelta(days=100), wStressWt - 4.2),
+            arrowprops={'color':'orangered','arrowstyle':'-|>','relpos':(0.,0.5),
+                        'connectionstyle':'angle3,angleA=0,angleB=90'}
+            )
 
 # # add a dashed line for sleep apnea treatment
 # plt.plot((apneaDate,apneaDate),(yL,yU),'k--')
 
 # add text labels
-ax.text(weight_dat.index[0]+((elvDate[0]-d1-weight_dat.index[0])/2),yL+2,'\'Normal\'\n(%.1fKg/yr)' % (nGain),ha='center',size='x-small')
-ax.text(elvDate[0]+((elvDate[1]-elvDate[0])/2),yL+2,'Elvanse\n(%.1fKg/yr)' % (eGain),ha='center',size='x-small')
-ax.text(sertDate[0]+((sertDate[1]-sertDate[0])/2),yL+2,'Zoloft\n(%.1fKg/yr*)' % (sGain),ha='center',size='x-small')
-ax.text(fluoxDate[0]+((fluoxDate[1]-fluoxDate[0])/2),yL+2,'Prozac\n(%.1fKg/yr*)' % (fGain),ha='center',size='x-small')
-ax.text(concDate[0]+((concDate[1]-concDate[0])/2),yL+2,'Concerta\n(%.1fKg/yr)' % (cGain),ha='center',size='x-small')
+ax.text(weight_dat.index[0]+((elvDate[0]-d1-weight_dat.index[0])/2),yL+1.4,'\'Normal\'\n(%.1fKg/yr)' % (nGain),ha='center',size='x-small')
+ax.text(elvDate[0]+((elvDate[1]-elvDate[0])/2),yL+1.4,'Elvanse\n(%.1fKg/yr)' % (eGain),ha='center',size='x-small')
+ax.text(sertDate[0]+((sertDate[1]-sertDate[0])/2),yL+1.4,'Zoloft\n(%.1fKg/yr*)' % (sGain),ha='center',size='x-small')
+ax.text(fluoxDate[0]+((fluoxDate[1]-fluoxDate[0])/2),yL+1.4,'Prozac\n(%.1fKg/yr*)' % (fGain),ha='center',size='x-small')
+ax.text(concDate[0]+((concDate[1]-concDate[0])/2),yL+1.4,'Concerta\n(%.1fKg/yr)' % (cGain),ha='center',size='x-small')
 plt.gcf().text(0.95, 0.02, '*assuming 3wk lag', ha='right',size='x-small')
 
 # add max weight
