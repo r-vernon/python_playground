@@ -14,6 +14,7 @@ I do have ADHD, and did have an eating disorder which ADHD meds *mostly* address
 """
 
 # import necessary stuff
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -22,6 +23,9 @@ from datetime import datetime, timedelta
 
 # set dpi for figures
 plt.rcParams["figure.dpi"] = 300
+
+# change directory to location of script
+os.chdir(os.path.dirname(__file__))
 
 # create functions to calculate bmi from weight (in kgs) and vice versa
 # hardcoded to my height of 1.8288m (6ft)
@@ -33,8 +37,7 @@ def bmi2kg(x):
 #%% import file
 
 # import the file
-weight_dat = pd.read_csv('/home/richard/Documents/Python/weightGraph/weight.csv', \
-                         usecols=['Date','Weight (kg)'])
+weight_dat = pd.read_csv('./weight.csv',usecols=['Date','Weight (kg)'])
     
 # rename columns
 weight_dat.rename(columns={'Weight (kg)':'Weight'},inplace=True)
@@ -186,7 +189,7 @@ ax.text(weight_dat.index[0],weight_dat.iat[0,0]-5,'   %.1fKg' % (weight_dat.iat[
 ax.text(weight_dat.index[-1],weight_dat.iat[-1,0]-4,'%.1fKg   ' % (weight_dat.iat[-1,0]),ha='center',size='x-small')
 
 # save the figure
-# plt.savefig('/home/richard/Documents/Python/weightGraph/weightGraph.png',dpi=150, pad_inches=0)
+plt.savefig('./weightGraph.png',dpi=150, pad_inches=0)
 
 # show the glory
 plt.show()
