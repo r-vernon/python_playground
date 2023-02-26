@@ -55,7 +55,7 @@ weight_dat.sort_values(by=["Date"], inplace=True)
 # delete rows before 25/05/16 as likely erroneous
 weight_dat = weight_dat[~(weight_dat['Date'] < '2016-05-25')]
 
-# normalize the dates (remove times) as we don't care what time we weighed ourself
+# normalize the dates (remove times) as don't care what time I weighed myself
 # helps duplicate check later
 weight_dat['Date'] = weight_dat['Date'].dt.normalize()
 
