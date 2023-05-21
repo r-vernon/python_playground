@@ -36,10 +36,10 @@ np.fill_diagonal(covMat,np.square(xy_SD))
 L = np.linalg.cholesky(covMat)
 
 # why this works:
-# - let C be target Cov, and L.L' = C
-# - let X be uncorrelated variables so X.X' = I
+# - let C be target CovMat, and LL' = C
+# - let X be uncorrelated variables (M=0,SD=1) so X.X' = I
 # - let Y = LX (as we're doing below)
-# - (note that (AB)' = B'A'
+#  - (note that (AB)' = B'A')
 # - Y.Y' = (LX).(LX)' = LXX'L' = LIL' = LL' = C
 # - therefore LX gives variables with target CovMat
 
