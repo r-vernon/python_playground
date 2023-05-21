@@ -35,6 +35,14 @@ np.fill_diagonal(covMat,np.square(xy_SD))
 # decomposes Cov into lower triangle matrix L, where L.L' = Cov
 L = np.linalg.cholesky(covMat)
 
+# why this works:
+# - let C be target Cov, and L.L' = C
+# - let X be uncorrelated variables so X.X' = I
+# - let Y = LX (as we're doing below)
+# - (note that (AB)' = B'A'
+# - Y.Y' = (LX).(LX)' = LXX'L' = LIL' = LL' = C
+# - therefore LX gives variables with target CovMat
+
 # create uncorrelated normal data
 # multiply by decomposition
 # shift centre
